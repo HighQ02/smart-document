@@ -1,0 +1,337 @@
+/* Documents.module.css */
+.documentsContainer {
+    padding: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+    opacity: 0;
+    animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+.documentsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.pageTitle {
+    font-size: 1.8em;
+    font-weight: bold;
+    margin: 0;
+}
+
+.pageDescription {
+    color: #666;
+    font-size: 0.9em;
+    margin: 2px 0 0 0;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    height: 32px;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+    text-decoration: none;
+}
+
+.btn .icon {
+    margin-right: 6px;
+    font-size: 1.1em;
+}
+
+.btnPrimary {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.btnPrimary:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+.btnOutline {
+    background-color: transparent;
+    color: #007bff;
+    border: 1px solid #007bff;
+}
+
+.btnOutline:hover:not(:disabled) {
+    background-color: #e9ecef;
+}
+
+.btnDanger {
+    background-color: #dc3545;
+    color: #fff;
+    border: 1px solid #dc3545;
+}
+
+.btnDanger:hover:not(:disabled) {
+    background-color: #c82333;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.searchContainer {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.searchInputContainer {
+    position: relative;
+    flex-grow: 1;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: #999;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 10px 10px 10px 35px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
+.card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #fff;
+    margin-bottom: 20px;
+}
+
+.cardHeader {
+    margin-bottom: 15px;
+    padding: 0;
+}
+
+.cardTitle {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin: 0;
+}
+
+.cardDescription {
+    color: #666;
+    font-size: 0.9em;
+    margin: 0;
+}
+
+.cardContent {
+    padding: 0;
+}
+
+.tableContainer {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.documentsTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+}
+
+.documentsTable th,
+.documentsTable td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.documentsTable th {
+    font-weight: bold;
+    color: #555;
+    background-color: #f9f9f9;
+}
+
+.documentsTable tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.documentsTable tbody tr:hover {
+    background-color: #f0f0f0;
+}
+
+.documentName {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.documentName .icon {
+     font-size: 1.2em;
+     color: #666;
+}
+
+.statusBadge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.status-approved { background-color: #d4edda; color: #155724; }
+.status-pending { background-color: #fff3cd; color: #856404; }
+.status-rejected { background-color: #f8d7da; color: #721c24; }
+
+.documentActions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.loadingContainer, .emptyContainer {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.templatesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.templateCard {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #f9f9f9;
+}
+
+.templateHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.templateTitle h3 {
+     font-size: 1em;
+     font-weight: bold;
+     margin: 0;
+}
+
+.templateTitle .icon {
+     font-size: 1.2em;
+     color: #007bff;
+     margin-right: 6px;
+}
+
+.templateDescription {
+    font-size: 0.9em;
+    color: #555;
+    margin: 0 0 15px 0;
+}
+
+.templateActions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.modalBackdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    max-width: 450px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.modalHeader {
+    margin-bottom: 20px;
+}
+
+.modalHeader h3 {
+    font-size: 1.3em;
+    font-weight: bold;
+    margin: 0;
+}
+
+.modalBody {
+    margin-bottom: 20px;
+}
+
+.modalBody p {
+    font-size: 1em;
+    color: #333;
+    margin: 0 0 15px 0;
+}
+
+.modalFooter {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.formGroup {
+    margin-bottom: 15px;
+}
+
+.formLabel {
+   font-size: 0.9em;
+   font-weight: bold;
+   color: #333;
+   display: block;
+   margin-bottom: 5px;
+}
+
+.formInput {
+   padding: 10px;
+   border: 1px solid #ccc;
+   border-radius: 5px;
+   font-size: 1em;
+   width: 100%;
+   box-sizing: border-box;
+   font-family: inherit;
+}

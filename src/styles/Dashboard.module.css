@@ -1,0 +1,283 @@
+/* Dashboard.module.css */
+.dashboardContainer {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    opacity: 0;
+    animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+.pageHeader {
+    margin-bottom: 20px;
+}
+
+.pageTitle {
+    font-size: 1.8em;
+    font-weight: bold;
+    margin: 0;
+}
+
+.pageDescription {
+    color: #666;
+    font-size: 0.9em;
+    margin: 5px 0 0 0;
+}
+
+.card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #fff;
+}
+
+.cardHeader {
+    margin-bottom: 15px;
+    padding: 0;
+}
+
+.cardContent {
+    padding: 0;
+}
+
+.cardTitle {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin: 0;
+}
+
+.cardDescription {
+    color: #666;
+    font-size: 0.9em;
+    margin: 0;
+}
+
+.statsGrid {
+    display: grid;
+    gap: 15px;
+    grid-template-columns: 1fr;
+    margin-bottom: 20px;
+}
+
+@media (min-width: 768px) {
+    .statsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .statsGrid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.statItem {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #fff;
+}
+
+.statItemHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.statItemTitle {
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #555;
+    margin: 0;
+}
+
+.statItemIcon svg {
+    width: 16px;
+    height: 16px;
+    color: #999;
+}
+
+.statValue {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.sectionsGrid {
+    display: grid;
+    gap: 15px;
+    grid-template-columns: 1fr;
+    margin-bottom: 20px;
+}
+
+@media (min-width: 768px) {
+    .sectionsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+     .sectionCard.spanMd2 {
+         grid-column: span 2 / span 2;
+     }
+}
+
+@media (min-width: 1024px) {
+    .sectionsGrid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+     .sectionCard.spanMd2 {
+         grid-column: span 2 / span 2;
+     }
+}
+
+.recentActivityList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.activityItem {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    background-color: #fff;
+}
+
+.activityIconContainer {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.activityIcon svg {
+    width: 20px;
+    height: 20px;
+    color: #007bff;
+}
+
+.activityDetails {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.activityTitle {
+    font-size: 0.9em;
+    font-weight: bold;
+    margin: 0;
+}
+
+.activityMeta {
+    font-size: 0.8em;
+    color: #666;
+    margin: 0;
+}
+
+.quickAccessList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.quickAccessItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.quickAccessItem:hover {
+    background-color: #f0f0f0;
+}
+
+.quickAccessIcon svg {
+    width: 20px;
+    height: 20px;
+    color: #007bff;
+    flex-shrink: 0;
+}
+
+.aiInputArea {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.aiInput {
+    flex-grow: 1;
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1em;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.aiInput:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.aiSendButton {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.aiSendButton:hover {
+    background-color: #0056b3;
+}
+
+.aiResponseArea {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #f0f0f0;
+}
+
+.aiResponseContent {
+    display: flex;
+    gap: 10px;
+}
+
+.aiAvatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #007bff;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9em;
+    flex-shrink: 0;
+}
+
+.aiResponseText {
+    font-size: 0.9em;
+    color: #555;
+    margin: 0;
+}

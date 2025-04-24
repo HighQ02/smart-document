@@ -1,0 +1,439 @@
+/* Profile.module.css */
+.profileContainer {
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+    opacity: 0;
+    animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+.pageTitle {
+    font-size: 2em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.pageDescription {
+    color: #666;
+    font-size: 0.9em;
+    margin-top: 0;
+}
+
+.tabsList {
+    display: flex;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.tabsTrigger {
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: color 0.3s ease;
+    color: #555;
+}
+
+.tabsTrigger:hover {
+    color: #000;
+}
+
+.tabsTrigger.active {
+    font-weight: bold;
+    color: #000;
+    border-bottom: 2px solid #000;
+    margin-bottom: -1px;
+}
+
+.tabsContent {
+    margin-top: 20px;
+}
+
+.card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #fff;
+    margin-bottom: 20px;
+}
+
+.cardHeader {
+    margin-bottom: 15px;
+}
+
+.cardTitle {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 0 0 5px 0;
+}
+
+.cardDescription {
+    color: #666;
+    font-size: 0.9em;
+    margin: 0;
+}
+
+.profileInfoLayout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+@media (min-width: 768px) {
+    .profileInfoLayout {
+        flex-direction: row;
+    }
+    .profileAvatarSection {
+        width: 30%;
+        max-width: 200px;
+    }
+    .profileDetailsSection {
+        width: 70%;
+    }
+}
+
+.profileAvatarSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+}
+
+.avatar {
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    background-color: #007bff;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3em;
+    margin-bottom: 10px;
+}
+
+.profileName {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.profileRole {
+    color: #666;
+    font-size: 0.9em;
+    text-transform: capitalize;
+    margin-bottom: 15px;
+}
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+}
+
+.button:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+.button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.buttonOutline {
+    background-color: transparent;
+    color: #007bff;
+    border: 1px solid #007bff;
+}
+
+.buttonOutline:hover:not(:disabled) {
+    background-color: #e9ecef;
+}
+
+.buttonFullWidth {
+    width: 100%;
+}
+
+.formGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
+
+@media (min-width: 768px) {
+    .formGrid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.formLabel {
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.inputField,
+.textareaField {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.inputField[readonly] {
+    background-color: #f0f0f0;
+    color: #555;
+}
+
+.textareaField {
+    resize: vertical;
+}
+
+.buttonRightAlignedGroup {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.settingsSection {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.settingsItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    border: 1px solid #eee;
+    border-radius: 6px;
+}
+
+.settingsItemContent {
+    display: flex;
+    align-items: center;
+}
+
+.settingsItemContent svg {
+    width: 24px;
+    height: 24px;
+    color: #007bff;
+    margin-right: 12px;
+}
+
+.settingsItemText h3 {
+    font-weight: bold;
+    margin: 0;
+    font-size: 1em;
+}
+
+.settingsItemText p {
+    font-size: 0.9em;
+    color: #666;
+    margin: 2px 0 0 0;
+}
+
+.settingsItemActions {
+    display: flex;
+    align-items: center;
+}
+
+.settingsTypes {
+    margin-top: 25px;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.settingsTypes h3 {
+     font-weight: bold;
+     margin: 0 0 15px 0;
+}
+
+.settingsTypeItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.settingsTypeItem:last-child {
+    margin-bottom: 0;
+}
+
+.settingsTypeItem label {
+    font-size: 0.9em;
+}
+
+.settingsTypeItem input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #007bff;
+}
+
+.securitySection {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.securitySection h3 {
+    font-weight: bold;
+    margin: 0 0 15px 0;
+}
+
+.securitySection h3 svg {
+    margin-right: 8px;
+    width: 20px;
+    height: 20px;
+    color: #007bff;
+}
+
+.passwordChangeForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.loginHistory {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.loginHistoryItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #eee;
+    border-radius: 5px;
+}
+
+.loginHistoryItem div p {
+    margin: 0;
+}
+
+.loginHistoryItem div p:first-child {
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.loginHistoryItem div p:last-child {
+     font-size: 0.8em;
+     color: #666;
+}
+
+.currentSessionText {
+    font-size: 0.7em;
+    color: green;
+    margin-top: 3px;
+}
+
+.usersTableContainer {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.usersTableContainer table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.usersTableContainer th,
+.usersTableContainer td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+    font-size: 0.9em;
+}
+
+.usersTableContainer th {
+    font-weight: bold;
+    color: #555;
+    background-color: #f9f9f9;
+}
+
+.usersTableContainer tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.usersTableContainer tbody tr:hover {
+     background-color: #f0f0f0;
+}
+
+.tableUserCell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tableUserCell svg {
+    width: 18px;
+    height: 18px;
+    color: #666;
+}
+
+.userGroupTag {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    padding: 3px 8px;
+    font-size: 0.8em;
+    font-weight: bold;
+    background-color: #eee;
+}
+
+.userActionsCell {
+    display: flex;
+    gap: 8px;
+}
+
+.buttonDestructive {
+    color: #dc3545;
+    border-color: #dc3545;
+    background-color: transparent;
+}
+
+.buttonDestructive:hover:not(:disabled) {
+     background-color: #dc35451a;
+     color: #dc3545;
+}
+
+.loadingText {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}

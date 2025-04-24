@@ -1,0 +1,229 @@
+/* SidebarLayout.module.css */
+.sidebarLayout {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f4f4f4;
+}
+
+.sidebarHeader,
+.header {
+    display: flex;
+    justify-content: space-between;
+    padding: 16px;
+    background-color: #1f2937;
+}
+
+.sidebarHeaderMobile {
+    display: flex;
+    justify-content: space-between;
+    padding: 16px;
+    background-color: #1f2937;
+}
+
+.headerMain {
+    display: flex;
+    justify-content: space-between;
+    padding: 16px;
+    background-color: #1f2937;
+}
+
+.headerLeft,
+.headerRight {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.menuButton,
+.closeButton,
+.userButton,
+.notificationButton,
+.logoutButton {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.menuButton svg,
+.closeButton svg,
+.userButton svg,
+.notificationButton svg,
+.logoutButton svg {
+    width: 24px;
+    height: 24px;
+}
+
+.title {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: white;
+    margin: 0;
+}
+
+.sidebarOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 40;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 300px;
+    background-color: #333;
+    padding: 16px;
+    transition: transform 0.3s ease;
+    transform: translateX(-100%);
+    z-index: 50;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar.open {
+    transform: translateX(0);
+}
+
+.sidebarHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.sidebarHeader .title {
+    font-size: 1.3em;
+}
+
+.sidebarHeader .closeButton {
+    padding: 4px;
+}
+
+.sidebarItems {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sidebarItem {
+    background: none;
+    border: none;
+    color: white;
+    padding: 12px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    position: relative;
+}
+
+.sidebarItem:hover {
+    background-color: #444;
+}
+
+.sidebarItem.active {
+    background-color: #4CAF50;
+    font-weight: bold;
+}
+
+.sidebarItem .icon {
+     width: 20px;
+     height: 20px;
+}
+
+.notificationCount {
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.7em;
+    min-width: 18px;
+    text-align: center;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.sidebarFooter {
+    padding-top: 16px;
+    border-top: 1px solid #444;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.userProfile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.userProfile .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #007bff;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+    flex-shrink: 0;
+}
+
+.userDetails {
+    display: flex;
+    flex-direction: column;
+}
+
+.userName {
+    font-weight: bold;
+    color: white;
+    margin: 0;
+    font-size: 1em;
+}
+
+.userRole {
+    color: #bbb;
+    font-size: 0.8em;
+    margin: 0;
+}
+
+.logoutButton {
+    width: 100%;
+    background-color: #f44336;
+    padding: 12px;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.logoutButton:hover {
+    background-color: #d32f2f;
+}
+
+.contentArea {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.mainContent {
+    flex-grow: 1;
+    padding: 20px;
+}

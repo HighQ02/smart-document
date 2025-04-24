@@ -1,0 +1,54 @@
+/* Unauthorized.module.css */
+.unauthorizedContainer {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(248, 248, 248, 0.8);
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.unauthorizedContent {
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+}
+
+.unauthorizedTitle {
+    font-size: 1.8em;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #dc3545;
+}
+
+.unauthorizedMessage {
+    margin-bottom: 20px;
+    color: #555;
+    font-size: 1em;
+}
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+}
+
+.button:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+.button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
