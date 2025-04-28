@@ -1,70 +1,171 @@
-# Getting Started with Create React App
+# Smart Document — Система управления документооборотом колледжа
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+> Smart Document — современная платформа для автоматизации документооборота и взаимодействия между администрацией, кураторами, студентами и родителями в образовательных учреждениях.
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## Описание
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Smart Document — это веб-приложение, которое облегчает создание, подачу, согласование и хранение документов. Система поддерживает различные роли пользователей (администратор, куратор, студент, родитель), защищённую аутентификацию, гибкие шаблоны документов, автоматизацию запросов и прозрачную работу с образовательными данными.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## Архитектура
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Frontend: React, React Router, Axios, React Hook Form, Zod, Radix UI
+- Backend: Node.js, Express, PostgreSQL, JWT, bcrypt, cors
+- Тестирование: Jest, React Testing Library
+- Безопасность: JWT, bcrypt, CORS, переменные окружения
 
-### `npm run build`
+```
+smart-document/
+├── Backend/           # Серверная часть (Node.js/Express)
+│   ├── server.js
+│   ├── package.json
+├── src/               # Исходный код клиента (React)
+│   ├── components/
+│   ├── pages/
+│   ├── contexts/
+│   ├── styles/
+│   ├── App.js
+│   ├── index.js
+├── public/            # Статические файлы
+├── package.json       # Фронтенд-зависимости
+└── README.md
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Основные возможности
 
-### `npm run eject`
+- Аутентификация и авторизация (JWT, роли: admin, curator, parent, student)
+- Управление документами: создание, просмотр, архивирование, статусы
+- Работа с шаблонами документов
+- Запросы: создание, просмотр, фильтрация
+- Управление группами, студентами, пользователями
+- Уведомления и личный кабинет
+- AI-помощник для пользователей
+- Аудит действий пользователей
+- Современный, адаптивный интерфейс
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Быстрый старт
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### 1. Клонирование репозитория
+```
+git clone https://github.com/your-org/smart-document.git
+cd smart-document
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### 2. Установка зависимостей
+#### Фронтенд
+```
+npm install
+```
+#### Бэкенд
+```
+cd Backend
+Удалите папку node_modules
+npm install
+npm install express pg cors
+npm install bcrypt
+```
 
-## Learn More
+### 3. Настройка переменных окружения
+Создайте файл .env в папке Backend:
+```
+JWT_SECRET=your_secret_key
+DB_USER=postgres
+DB_PASSWORD=your_password
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=CollegeDB
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 4. Запуск приложения
+#### Бэкенд
+```
+cd Backend
+node server.js
+```
+Сервер будет доступен на порту 7000.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+#### Фронтенд
+```
+npm start
+```
+Откройте http://localhost:3000 в браузере.
 
-### Code Splitting
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Инструкция по использованию
 
-### Analyzing the Bundle Size
+1. Зарегистрируйтесь или войдите в систему.
+2. В зависимости от вашей роли используйте соответствующие разделы:
+   - Администратор: управление пользователями, группами, документами, шаблонами.
+   - Куратор: работа с группами, студентами, документами, запросами.
+   - Родитель: просмотр успеваемости, оформление документов, мониторинг.
+   - Студент: подача заявок, работа с документами.
+3. Используйте AI-помощника для навигации и советов.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+---
 
-### Making a Progressive Web App
+## Основные команды
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- npm start — запуск фронтенда в режиме разработки
+- npm run build — сборка фронтенда для продакшена
+- npm test — запуск тестов
+- node server.js — запуск бэкенда
 
-### Advanced Configuration
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## API (основные эндпоинты)
 
-### Deployment
+- POST /api/auth/login — вход в систему
+- POST /api/auth/logout — выход
+- GET /api/users/me — информация о текущем пользователе
+- GET /api/documents — список документов (фильтрация по роли)
+- POST /api/requests — создание запроса
+- GET /api/requests — список запросов
+- GET /api/document-templates — шаблоны документов
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+_Подробности — см. исходный код Backend/server.js._
 
-### `npm run build` fails to minify
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Безопасность
+
+- Все пароли хранятся в зашифрованном виде (bcrypt)
+- JWT-сессии, секрет хранится в .env
+- CORS, защита от неавторизованного доступа
+- Логи активности пользователей
+
+---
+
+## Рекомендации для продакшена
+
+- Используйте безопасные переменные окружения
+- Настройте HTTPS
+- Регулярно обновляйте зависимости
+- Настройте мониторинг и резервное копирование БД
+
+---
+
+## Вклад и развитие
+
+- Форкайте репозиторий, создавайте ветки, отправляйте pull request'ы
+- Описывайте баги и предложения через Issues
+- Соблюдайте кодстайл и best practices
+
+---
+
+## Лицензия
+
+MIT License
+
+---
+
+> _Smart Document — ваш надежный помощник в цифровизации документооборота!_
