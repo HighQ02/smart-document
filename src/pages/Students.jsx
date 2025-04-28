@@ -3,7 +3,7 @@ import SidebarLayout from './../components/layouts/SidebarLayout';
 import { Search, User, FileText, Download } from 'lucide-react';
 import { useAuth } from './../contexts/AuthContext';
 
-import './../styles/Students.module.css';
+import styles from './../styles/Students.module.css';
 
 const Students = () => {
   const { user } = useAuth();
@@ -68,21 +68,14 @@ const Students = () => {
     },
   ];
 
-  // Get status class for badge
   const getStatusClass = (status) => {
-    // Replace spaces with underscores for CSS class names
     const formattedStatus = status.replace(/\s+/g, '_');
     switch (formattedStatus) {
-      case 'Одобрен':
-        return 'status-indicator-Одобрен';
-      case 'В_обработке':
-        return 'status-indicator-В_обработке';
-      case 'Ожидает_проверки':
-        return 'status-indicator-Ожидает_проверки';
-      case 'Отклонен':
-        return 'status-indicator-Отклонен';
-      default:
-        return 'status-indicator-default';
+      case 'Одобрен': return 'status-indicator-Одобрен';
+      case 'В_обработке': return 'status-indicator-В_обработке';
+      case 'Ожидает_проверки': return 'status-indicator-Ожидает_проверки';
+      case 'Отклонен': return 'status-indicator-Отклонен';
+      default: return 'status-indicator-default';
     }
   };
 
@@ -92,35 +85,35 @@ const Students = () => {
 
   return (
     <SidebarLayout>
-      <div className="students-container">
+      <div className={styles.studentsContainer}>
         <div>
-          <h2 className="page-title">Студенты</h2>
-          <p className="page-description">
+          <h2 className={styles.pageTitle}>Студенты</h2>
+          <p className={styles.pageDescription}>
             {user?.role === 'curator'
               ? 'Управление студентами ваших групп'
               : 'Информация о ваших детях'}
           </p>
         </div>
 
-        <div className="search-filter-area">
-          <div className="search-input-container">
-            <Search className="search-icon" />
-            <input type="text" placeholder="Поиск по студентам..." className="search-input" />
+        <div className={styles.searchFilterArea}>
+          <div className={styles.searchInputContainer}>
+            <Search style={{width: '1.1em', height: '1.1em'}} className={styles.searchIcon} />
+            <input type="text" placeholder="Поиск по студентам..." className={styles.searchInput} />
           </div>
-          <button type="button" className="button button-outline">Фильтры</button>
+          <button type="button" className={`${styles.button} ${styles.buttonOutline}`}>Фильтры</button>
         </div>
 
-        <div className="tabs-container">
-          <div className="tabs-list">
+        <div className={styles.tabsContainer}>
+          <div className={styles.tabsList}>
             <button
-              className={`tabs-trigger ${activeTab === 'list' ? 'active' : ''}`}
+              className={`${styles.tabsTrigger} ${activeTab === 'list' ? styles.active : ''}`}
               onClick={() => handleTabChange('list')}
             >
               Список студентов
             </button>
             {user?.role === 'parent' && (
               <button
-                className={`tabs-trigger ${activeTab === 'documents' ? 'active' : ''}`}
+                className={`${styles.tabsTrigger} ${activeTab === 'documents' ? styles.active : ''}`}
                 onClick={() => handleTabChange('documents')}
               >
                 Документы
@@ -129,74 +122,74 @@ const Students = () => {
           </div>
 
           {activeTab === 'list' && (
-            <div className="tabs-content">
-              <div className="students-list-grid">
+            <div className={styles.tabsContent}>
+              <div className={styles.studentsListGrid}>
                 {students.map((student) => (
-                  <div key={student.id} className="card">
-                    <div className="card-header">
-                      <div className="student-card-header">
-                        <div className="student-info">
-                          <div className="student-avatar">
+                  <div key={student.id} className={styles.card}>
+                    <div className={styles.cardHeader}>
+                      <div className={styles.studentCardHeader}>
+                        <div className={styles.studentInfo}>
+                          <div className={styles.studentAvatar}>
                             <User />
                           </div>
                           <div>
-                            <h3 className="student-name">{student.name}</h3>
-                            <p className="student-meta">
+                            <h3 className={styles.studentName}>{student.name}</h3>
+                            <p className={styles.studentMeta}>
                               Группа {student.group}
                               {user?.role === 'parent' && student.curator && ` • Куратор: ${student.curator}`}
                               {user?.role === 'curator' && student.parent && ` • Родитель: ${student.parent}`}
                             </p>
                           </div>
                         </div>
-                        <div className="student-actions">
+                        <div className={styles.studentActions}>
                           {user?.role === 'curator' && (
-                            <button type="button" className="button">Управление студентом</button>
+                            <button type="button" className={styles.button}>Управление студентом</button>
                           )}
                           {user?.role === 'parent' && (
-                            <button type="button" className="button button-outline">Связаться с куратором</button>
+                            <button type="button" className={`${styles.button} ${styles.buttonOutline}`}>Связаться с куратором</button>
                           )}
                         </div>
                       </div>
                     </div>
-                    <div className="card-content">
-                      <div className="document-progress-section">
+                    <div className={styles.cardContent}>
+                      <div className={styles.documentProgressSection}>
                         <h3>
                           <FileText />
                           Документы
                         </h3>
-                        <div className="progress-container">
-                          <div className="progress-bar-container">
+                        <div className={styles.progressContainer}>
+                          <div className={styles.progressBarContainer}>
                             <div
-                              className="progress-bar"
+                              className={styles.progressBar}
                               style={{ width: `${(student.docsCompleted / student.docsTotal) * 100}%` }}
                             ></div>
                           </div>
-                          <div className="progress-text">
+                          <div className={styles.progressText}>
                             {student.docsCompleted}/{student.docsTotal} документов
                           </div>
                         </div>
                       </div>
 
                       {user?.role === 'curator' && (
-                        <div className="student-card-buttons">
-                          <button type="button" className="button button-outline button-small">
+                        <div className={styles.studentCardButtons}>
+                          <button type="button" className={`${styles.button} ${styles.buttonOutline} ${styles.buttonSmall}`}>
                             Просмотреть документы
                           </button>
-                          <button type="button" className="button button-outline button-small">
+                          <button type="button" className={`${styles.button} ${styles.buttonOutline} ${styles.buttonSmall}`}>
                             Добавить документ
                           </button>
-                          <button type="button" className="button button-outline button-small">
+                          <button type="button" className={`${styles.button} ${styles.buttonOutline} ${styles.buttonSmall}`}>
                             Отправить уведомление
                           </button>
                         </div>
                       )}
 
                       {user?.role === 'parent' && (
-                        <div className="student-card-buttons">
-                          <button type="button" className="button button-outline button-small">
+                        <div className={styles.studentCardButtons}>
+                          <button type="button" className={`${styles.button} ${styles.buttonOutline} ${styles.buttonSmall}`}>
                             Просмотреть профиль
                           </button>
-                          <button type="button" className="button button-outline button-small">
+                          <button type="button" className={`${styles.button} ${styles.buttonOutline} ${styles.buttonSmall}`}>
                             Загрузить документ
                           </button>
                         </div>
@@ -209,14 +202,14 @@ const Students = () => {
           )}
 
           {user?.role === 'parent' && activeTab === 'documents' && (
-            <div className="tabs-content">
-              <div className="card">
-                <div className="card-header">
-                  <h3 className="card-title">Документы вашего ребенка</h3>
-                  <p className="card-description">Просмотр и управление документами</p>
+            <div className={styles.tabsContent}>
+              <div className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <h3 className={styles.cardTitle}>Документы вашего ребенка</h3>
+                  <p className={styles.cardDescription}>Просмотр и управление документами</p>
                 </div>
-                <div className="card-content">
-                  <div className="documents-table-container">
+                <div className={styles.cardContent}>
+                  <div className={styles.documentsTableContainer}>
                     <table>
                       <thead>
                         <tr>
@@ -229,18 +222,18 @@ const Students = () => {
                       <tbody>
                         {documents.map((doc) => (
                           <tr key={doc.id}>
-                            <td className="table-doc-cell">
+                            <td className={styles.tableDocCell}>
                               <FileText />
                               {doc.name}
                             </td>
                             <td>
-                              <span className={`status-indicator ${getStatusClass(doc.status)}`}>
+                              <span className={`${styles.statusIndicator} ${styles[getStatusClass(doc.status)]}`}>
                                 {doc.status}
                               </span>
                             </td>
                             <td>{doc.date}</td>
                             <td>
-                              <button type="button" className="button button-outline button-small">
+                              <button type="button" className={`${styles.button} ${styles.buttonOutline} ${styles.buttonSmall}`}>
                                 <Download style={{width: '1em', height: '1em', marginRight: '8px'}} />
                                 Скачать
                               </button>

@@ -295,7 +295,6 @@ const Schedule = () => {
               onClick={() => handleTabChange('deadlines')}
             >
               Дедлайны
-              <span className={styles.badge}>{deadlines.length}</span>
             </button>
           </div>
 

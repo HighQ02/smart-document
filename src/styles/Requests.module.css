@@ -1,8 +1,5 @@
 /* Requests.module.css */
 .requestsContainer {
-    padding: 20px;
-    max-width: 900px;
-    margin: 0 auto;
     opacity: 0;
     animation: fadeIn 0.5s ease-in-out forwards;
 }
@@ -28,7 +25,7 @@
 .tabsList {
     display: flex;
     border-bottom: 1px solid #ccc;
-    margin-bottom: 20px;
+    margin: 20px 0px;
     flex-wrap: wrap;
     gap: 5px;
 }

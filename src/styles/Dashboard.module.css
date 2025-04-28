@@ -1,8 +1,5 @@
 /* Dashboard.module.css */
 .dashboardContainer {
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
     opacity: 0;
     animation: fadeIn 0.5s ease-in-out forwards;
 }
@@ -26,18 +23,18 @@
 .pageDescription {
     color: #666;
     font-size: 0.9em;
-    margin: 5px 0 0 0;
+    margin: 4px 0 0 0;
 }
 
 .card {
     border: 1px solid #ddd;
     border-radius: 8px;
-    padding: 15px;
+    padding: 1.5rem;
     background-color: #fff;
 }
 
 .cardHeader {
-    margin-bottom: 15px;
+    margin-bottom: 1.5rem;
     padding: 0;
 }
 
@@ -46,7 +43,7 @@
 }
 
 .cardTitle {
-    font-size: 1.1em;
+    font-size: 1.5em;
     font-weight: bold;
     margin: 0;
 }
@@ -77,9 +74,9 @@
 }
 
 .statItem {
-    border: 1px solid #eee;
+    border: 1px solid hsl(214 32% 91%);
     border-radius: 8px;
-    padding: 15px;
+    padding: 1.5rem;
     background-color: #fff;
 }
 
@@ -137,14 +134,14 @@
 .recentActivityList {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
 }
 
 .activityItem {
     display: flex;
     align-items: center;
     gap: 15px;
-    padding: 10px;
+    padding: 0.75rem;
     border: 1px solid #eee;
     border-radius: 6px;
     background-color: #fff;
@@ -154,17 +151,17 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background-color: #e9ecef;
+    background-color: hsla(221 83% 53% / 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
 }
 
-.activityIcon svg {
+.activityIconContainer svg {
     width: 20px;
     height: 20px;
-    color: #007bff;
+    color: hsl(221 83% 53%);
 }
 
 .activityDetails {
@@ -206,7 +203,7 @@
     background-color: #f0f0f0;
 }
 
-.quickAccessIcon svg {
+.quickAccessItem svg {
     width: 20px;
     height: 20px;
     color: #007bff;

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import AIAssistant from './../../components/AIAssistant';
 import { Home, FileText, Bell, Calendar, Users, User, Menu, X, LogOut, MessageSquare } from 'lucide-react';
 import { useAuth } from './../../contexts/AuthContext';
 
@@ -63,14 +62,6 @@ const SidebarLayout = ({ children }) => {
           <Menu className={styles.icon} />
         </button>
         <h1 className={styles.title}>SmartNation College</h1>
-        {user?.name && (
-           <div className={styles.userInfoMobile}>
-             <button type="button" onClick={() => navigate('/profile')} className={styles.userButton}>
-               <User className={styles.icon} />
-               {user?.name?.split(' ')[0]}
-             </button>
-           </div>
-        )}
       </div>
 
       {sidebarOpen && window.innerWidth < 1024 && (
