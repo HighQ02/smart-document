@@ -14,6 +14,18 @@
     margin-bottom: 20px;
 }
 
+.greetingContainer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.greetingIcon {
+    width: 24px;
+    height: 24px;
+    color: #4f46e5;
+}
+
 .pageTitle {
     font-size: 1.8em;
     font-weight: bold;
@@ -145,6 +157,13 @@
     border: 1px solid #eee;
     border-radius: 6px;
     background-color: #fff;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.activityItem:hover {
+    background-color: #f9fafb;
+    border-color: #ddd;
 }
 
 .activityIconContainer {
@@ -181,6 +200,13 @@
     font-size: 0.8em;
     color: #666;
     margin: 0;
+}
+
+.activityTime {
+    font-size: 0.8em;
+    color: #666;
+    margin: 0;
+    white-space: nowrap;
 }
 
 .quickAccessList {
@@ -277,4 +303,79 @@
     font-size: 0.9em;
     color: #555;
     margin: 0;
+}
+
+/* Стили для блока быстрого доступа */
+.quickAccessSection {
+    margin-bottom: 20px;
+}
+
+.sectionTitle {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 0 0 15px 0;
+}
+
+.quickAccessGrid {
+    display: grid;
+    gap: 15px;
+    grid-template-columns: repeat(1, 1fr);
+}
+
+@media (min-width: 640px) {
+    .quickAccessGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 768px) {
+    .quickAccessGrid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .quickAccessGrid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.quickAccessCard {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 8px;
+    background-color: white;
+    border: 1px solid #eaeaea;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    text-align: left;
+}
+
+.quickAccessCard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border-color: var(--card-accent-color, #4f46e5);
+}
+
+.quickAccessIconContainer {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background-color: rgba(var(--card-accent-color, #4f46e5), 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--card-accent-color, #4f46e5);
+}
+
+.quickAccessIcon {
+    width: 20px;
+    height: 20px;
+}
+
+.quickAccessTitle {
+    font-weight: 500;
+    font-size: 0.95em;
 }

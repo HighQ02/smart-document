@@ -34,6 +34,7 @@
     position: sticky;
     top: 0;
     z-index: 20;
+    transition: box-shadow 0.3s ease, background-color 0.3s ease;
 }
 
 .headerLeft {
@@ -199,6 +200,7 @@
     height: 100vh;
     display: flex;
     flex-direction: column;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .sidebar.open {
@@ -288,6 +290,8 @@
     height: 2.5rem;
     justify-content: flex-start;
     white-space: nowrap;
+    position: relative;
+    overflow: hidden;
 }
 
 .sidebarItem:hover:not(.active) {
@@ -450,4 +454,69 @@
     .headerMain {
         display: none;
     }
+}
+
+.sidebarScrolled {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-right: 1px solid #eaeaea;
+}
+
+.headerScrolled {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #eaeaea;
+}
+
+/* Стили для подсветки элементов и счетчиков */
+.highlight {
+  position: relative;
+  animation: pulseHighlight 2s infinite ease-in-out;
+}
+
+@keyframes pulseHighlight {
+  0%, 100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: rgba(239, 68, 68, 0.08);
+  }
+}
+
+.highlightCount {
+  background-color: #ef4444;
+  animation: pulse 2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Анимация переключения разделов */
+.sidebarItem::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background-color: #4f46e5;
+  transition: width 0.3s ease;
+}
+
+.sidebarItem:hover::after {
+  width: 30%;
+}
+
+.sidebarItem.active::after {
+  width: 100%;
+  transition: width 0.5s ease;
 }

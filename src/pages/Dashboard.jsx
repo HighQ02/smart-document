@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './../contexts/AuthContext';
 import SidebarLayout from './../components/layouts/SidebarLayout';
-import { FileText, Users, Bell, Calendar, MessageSquare } from 'lucide-react';
+import { 
+  FileText, Users, Bell, Calendar, MessageSquare, Sun, Sunrise, Sunset, Moon,
+  PlusCircle, Clock, BookOpen, Bookmark
+} from 'lucide-react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 import styles from './../styles/Dashboard.module.css';
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
 
@@ -88,9 +93,17 @@ const Dashboard = () => {
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Доброе утро';
-    if (hour < 18) return 'Добрый день';
-    return 'Добрый вечер';
+    
+    // Возвращает объект с текстом приветствия и соответствующей иконкой
+    if (hour >= 5 && hour < 12) {
+      return { text: 'Доброе утро!', icon: Sunrise };
+    } else if (hour >= 12 && hour < 18) {
+      return { text: 'Добрый день!', icon: Sun };
+    } else if (hour >= 18 && hour < 23) {
+      return { text: 'Добрый вечер!', icon: Sunset };
+    } else {
+      return { text: 'Доброй ночи!', icon: Moon };
+    }
   };
 
   const getDashboardTitle = () => {
@@ -163,19 +176,76 @@ const Dashboard = () => {
       );
   };
 
+  // Определение карточек быстрого доступа в зависимости от роли пользователя
+  const getQuickAccessItems = () => {
+    const commonItems = [
+      { icon: FileText, title: 'Открыть документы', path: '/documents', color: '#4f46e5' },
+      { icon: Bell, title: 'Просмотреть уведомления', path: '/notifications', color: '#f97316' },
+    ];
+
+    if (user?.role === 'admin') {
+      return [
+        ...commonItems,
+        { icon: Users, title: 'Управление пользователями', path: '/users', color: '#10b981' },
+        { icon: MessageSquare, title: 'Просмотр запросов', path: '/requests', color: '#8b5cf6' },
+      ];
+    } else if (user?.role === 'curator') {
+      return [
+        ...commonItems,
+        { icon: Users, title: 'Просмотр студентов', path: '/students', color: '#10b981' },
+        { icon: MessageSquare, title: 'Просмотр запросов', path: '/requests', color: '#8b5cf6' },
+      ];
+    } else if (user?.role === 'parent') {
+      return [
+        ...commonItems,
+        { icon: Users, title: 'Просмотр студентов', path: '/students', color: '#10b981' },
+        { icon: PlusCircle, title: 'Создать запрос', path: '/requests/new', color: '#8b5cf6' },
+      ];
+    }
+
+    return commonItems;
+  };
 
   return (
     <SidebarLayout>
       <div className={styles.dashboardContainer}>
         <div className={styles.pageHeader}>
-          <h2 className={styles.pageTitle}>
-            {getGreeting()}, {user?.name?.split(' ')[0]}
-          </h2>
+          <div className={styles.greetingContainer}>
+            <h2 className={styles.pageTitle}>
+              {getGreeting().text} {user?.name?.split(' ')[0]}
+            </h2>
+            {getGreeting().icon && (
+              <div className={styles.greetingIcon}>
+                {React.createElement(getGreeting().icon)}
+              </div>
+            )}
+          </div>
           <p className={styles.pageDescription}>{getDashboardTitle()}</p>
         </div>
 
         {renderStats()} {/* Render stats based on state */}
 
+        {/* Блок быстрого доступа */}
+        <div className={styles.quickAccessSection}>
+          <h3 className={styles.sectionTitle}>Быстрый доступ</h3>
+          <div className={styles.quickAccessGrid}>
+            {getQuickAccessItems().map((item, index) => (
+              <button 
+                key={index} 
+                className={styles.quickAccessCard}
+                onClick={() => navigate(item.path)}
+                style={{ 
+                  '--card-accent-color': item.color 
+                }}
+              >
+                <div className={styles.quickAccessIconContainer}>
+                  <item.icon className={styles.quickAccessIcon} />
+                </div>
+                <span className={styles.quickAccessTitle}>{item.title}</span>
+              </button>
+            ))}
+          </div>
+        </div>
 
         <div className={styles.sectionsGrid}>
           <div className={`${styles.sectionCard} ${styles.card} ${styles.spanMd2}`}>
@@ -186,7 +256,11 @@ const Dashboard = () => {
             <div className={styles.cardContent}>
               <div className={styles.recentActivityList}>
                 {[1, 2, 3].map((_, i) => (
-                  <div key={i} className={styles.activityItem}>
+                  <div 
+                    key={i} 
+                    className={styles.activityItem}
+                    onClick={() => navigate('/documents')} // Сделаем элементы активности кликабельными
+                  >
                     <div className={styles.activityIconContainer}>
                       <FileText className={styles.activityIcon} />
                     </div>
@@ -196,7 +270,7 @@ const Dashboard = () => {
                         Документ "Заявление о приеме" был обновлен
                       </p>
                     </div>
-                    <div className={styles.activityMeta}>5 мин. назад</div>
+                    <div className={styles.activityTime}>5 мин. назад</div>
                   </div>
                 ))}
               </div>

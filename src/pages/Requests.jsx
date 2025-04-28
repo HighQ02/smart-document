@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import SidebarLayout from './../components/layouts/SidebarLayout';
-import { Clock, CheckCircle, XCircle, FileText, Calendar, Users } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, FileText, Calendar, Users, Eye, FileCheck, AlertCircle } from 'lucide-react';
 import { useAuth } from './../contexts/AuthContext';
 
 import styles from './../styles/Requests.module.css';
@@ -122,7 +122,7 @@ const Requests = () => {
               onClick={() => handleTabChange('all')}
             >
               Все
-              <span className={styles.badge}>
+              <span className={styles.badgeCircle}>
                 {requests.length}
               </span>
             </button>
@@ -131,7 +131,7 @@ const Requests = () => {
               onClick={() => handleTabChange('pending')}
             >
               Ожидающие
-              <span className={styles.badge}>
+              <span className={styles.badgeCircle}>
                 {pendingRequests.length}
               </span>
             </button>
@@ -140,6 +140,9 @@ const Requests = () => {
                onClick={() => handleTabChange('processed')}
              >
                Обработанные
+               <span className={styles.badgeCircle}>
+                 {processedRequests.length}
+               </span>
              </button>
            </div>
 
@@ -183,17 +186,44 @@ const Requests = () => {
                             <td>
                               {request.status === 'pending' ? (
                                 <div className={styles.buttonGroupHorizontal}>
-                                  <button type="button" className={`${styles.button} ${styles.buttonOutline} ${styles.buttonSmall}`}>
-                                    Просмотр
+                                  <button 
+                                    type="button" 
+                                    className={`${styles.actionButton} ${styles.viewButton}`}
+                                    title="Просмотреть запрос"
+                                  >
+                                    <Eye className={styles.actionIcon} />
+                                    <span>Просмотр</span>
                                   </button>
-                                  <button type="button" className={`${styles.button} ${styles.buttonSmall}`}>
-                                    Обработать
+                                  <button 
+                                    type="button" 
+                                    className={`${styles.actionButton} ${styles.processButton}`}
+                                    title="Обработать запрос"
+                                  >
+                                    <FileCheck className={styles.actionIcon} />
+                                    <span>Обработать</span>
                                   </button>
                                 </div>
                               ) : (
-                                <button type="button" className={`${styles.button} ${styles.buttonOutline} ${styles.buttonSmall}`}>
-                                  Просмотр
-                                </button>
+                                <div className={styles.buttonGroupHorizontal}>
+                                  <button 
+                                    type="button" 
+                                    className={`${styles.actionButton} ${styles.viewButton}`}
+                                    title="Просмотреть запрос"
+                                  >
+                                    <Eye className={styles.actionIcon} />
+                                    <span>Просмотр</span>
+                                  </button>
+                                  {request.status === 'rejected' && (
+                                    <button 
+                                      type="button" 
+                                      className={`${styles.actionButton} ${styles.warningButton}`}
+                                      title="Просмотреть причину отклонения"
+                                    >
+                                      <AlertCircle className={styles.actionIcon} />
+                                      <span>Причина</span>
+                                    </button>
+                                  )}
+                                </div>
                               )}
                             </td>
                           </tr>
@@ -237,11 +267,21 @@ const Requests = () => {
                             <td>{request.date}</td>
                             <td>
                               <div className={styles.buttonGroupHorizontal}>
-                                <button type="button" className={`${styles.button} ${styles.buttonOutline} ${styles.buttonSmall}`}>
-                                  Просмотр
+                                <button 
+                                  type="button" 
+                                  className={`${styles.actionButton} ${styles.viewButton}`}
+                                  title="Просмотреть запрос"
+                                >
+                                  <Eye className={styles.actionIcon} />
+                                  <span>Просмотр</span>
                                 </button>
-                                <button type="button" className={`${styles.button} ${styles.buttonSmall}`}>
-                                  Обработать
+                                <button 
+                                  type="button" 
+                                  className={`${styles.actionButton} ${styles.processButton}`}
+                                  title="Обработать запрос"
+                                >
+                                  <FileCheck className={styles.actionIcon} />
+                                  <span>Обработать</span>
                                 </button>
                               </div>
                             </td>
@@ -289,9 +329,26 @@ const Requests = () => {
                             </td>
                             <td>{request.date}</td>
                             <td>
-                              <button type="button" className={`${styles.button} ${styles.buttonOutline} ${styles.buttonSmall}`}>
-                                Просмотр
-                              </button>
+                              <div className={styles.buttonGroupHorizontal}>
+                                <button 
+                                  type="button" 
+                                  className={`${styles.actionButton} ${styles.viewButton}`}
+                                  title="Просмотреть запрос"
+                                >
+                                  <Eye className={styles.actionIcon} />
+                                  <span>Просмотр</span>
+                                </button>
+                                {request.status === 'rejected' && (
+                                  <button 
+                                    type="button" 
+                                    className={`${styles.actionButton} ${styles.warningButton}`}
+                                    title="Просмотреть причину отклонения"
+                                  >
+                                    <AlertCircle className={styles.actionIcon} />
+                                    <span>Причина</span>
+                                  </button>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         ))}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, FileText, Bell, Calendar, Users, User, Menu, X, LogOut, MessageSquare } from 'lucide-react';
 import { useAuth } from './../../contexts/AuthContext';
@@ -9,7 +9,14 @@ const sidebarItems = [
   { label: 'Главная', icon: Home, path: '/dashboard', roles: ['admin', 'curator', 'parent'] },
   { label: 'Документы', icon: FileText, path: '/documents', roles: ['admin', 'curator', 'parent'] },
   { label: 'Уведомление', icon: Bell, path: '/notifications', roles: ['admin', 'curator', 'parent'] },
-  { label: 'Запросы', icon: MessageSquare, path: '/requests', roles: ['admin', 'curator'] },
+  { 
+    label: 'Запросы', 
+    icon: MessageSquare, 
+    path: '/requests', 
+    roles: ['admin', 'curator'],
+    highlight: true,
+    count: 3
+  },
   { label: 'Расписание', icon: Calendar, path: '/schedule', roles: ['admin'] },
   { label: 'Группы', icon: Users, path: '/groups', roles: ['admin', 'curator'] },
   { label: 'Студенты', icon: Users, path: '/students', roles: ['curator', 'parent'] },
@@ -22,6 +29,9 @@ const SidebarLayout = ({ children }) => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const headerRef = useRef(null);
+  const sidebarRef = useRef(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -30,6 +40,34 @@ const SidebarLayout = ({ children }) => {
     window.addEventListener('resize', handleResize);
     return () => {
       window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      if (scrollY > 0) {
+        setIsScrolled(true);
+        if (headerRef.current) {
+          headerRef.current.classList.add(styles.headerScrolled);
+        }
+        if (sidebarRef.current) {
+          sidebarRef.current.classList.add(styles.sidebarScrolled);
+        }
+      } else {
+        setIsScrolled(false);
+        if (headerRef.current) {
+          headerRef.current.classList.remove(styles.headerScrolled);
+        }
+        if (sidebarRef.current) {
+          sidebarRef.current.classList.remove(styles.sidebarScrolled);
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
@@ -47,12 +85,13 @@ const SidebarLayout = ({ children }) => {
     setSidebarOpen(!sidebarOpen);
   };
 
-   useEffect(() => {
-        setTimeout(() => {
-            setUnreadNotifications(3);
-        }, 500);
-   }, [user]);
+  useEffect(() => {
+    setTimeout(() => {
+        setUnreadNotifications(3);
+    }, 500);
+  }, [user]);
 
+  const isRequestsActive = location.pathname.startsWith('/requests');
 
   return (
     <div className={styles.sidebarLayout}>
@@ -61,16 +100,19 @@ const SidebarLayout = ({ children }) => {
         <button type="button" onClick={toggleSidebar} className={styles.menuButton}>
           <Menu className={styles.icon} />
         </button>
-        <h1 className={styles.title}>SmartNation College</h1>
+        <h1 className={styles.title}>SmartDocument</h1>
       </div>
 
       {sidebarOpen && window.innerWidth < 1024 && (
         <div className={styles.sidebarOverlay} onClick={() => setSidebarOpen(false)} />
       )}
 
-      <div className={`${styles.sidebar} ${sidebarOpen ? styles.open : ''}`}>
+      <div 
+        ref={sidebarRef}
+        className={`${styles.sidebar} ${sidebarOpen ? styles.open : ''} ${isScrolled ? styles.sidebarScrolled : ''}`}
+      >
         <div className={styles.sidebarHeader}>
-          <h2 className={styles.title}>SmartNation College</h2>
+          <h2 className={styles.title}>SmartDocument</h2>
            {window.innerWidth < 1024 && (
              <button type="button" onClick={toggleSidebar} className={styles.closeButton}>
                <X className={styles.icon} />
@@ -80,11 +122,12 @@ const SidebarLayout = ({ children }) => {
 
         <div className={styles.sidebarItems}>
           {filteredItems.map((item) => {
-            const isActive = location.pathname === item.path;
+            const isActive = item.path === '/requests' ? isRequestsActive : location.pathname === item.path;
+            
             return (
               <button
                 key={item.path}
-                className={`${styles.sidebarItem} ${isActive ? styles.active : ''}`}
+                className={`${styles.sidebarItem} ${isActive ? styles.active : ''} ${item.highlight ? styles.highlight : ''}`}
                 onClick={() => {
                   navigate(item.path);
                   if (window.innerWidth < 1024) {
@@ -96,6 +139,9 @@ const SidebarLayout = ({ children }) => {
                 <span>{item.label}</span>
                 {item.label === 'Уведомление' && unreadNotifications > 0 && (
                   <span className={styles.notificationCount}>{unreadNotifications}</span>
+                )}
+                {item.count > 0 && item.highlight && (
+                  <span className={`${styles.notificationCount} ${styles.highlightCount}`}>{item.count}</span>
                 )}
               </button>
             );
@@ -125,14 +171,17 @@ const SidebarLayout = ({ children }) => {
       </div>
 
       <div className={styles.contentArea}>
-        <header className={styles.headerMain}>
+        <header 
+          ref={headerRef}
+          className={`${styles.headerMain} ${isScrolled ? styles.headerScrolled : ''}`}
+        >
           <div className={styles.headerLeft}>
              {window.innerWidth < 1024 && (
                <button type="button" onClick={toggleSidebar} className={styles.menuButton}>
                  <Menu className={styles.icon} />
                </button>
              )}
-            <h1 className={styles.title}>SmartNation College</h1>
+            <h1 className={styles.title}>SmartDocument</h1>
           </div>
           <div className={styles.headerRight}>
              <button type="button" onClick={() => navigate('/notifications')} className={styles.notificationButton}>

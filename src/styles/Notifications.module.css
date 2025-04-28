@@ -277,3 +277,275 @@
 .buttonGroupHorizontal .button {
     flex: 1;
 }
+
+/* Добавляем стили для уведомления о статусе */
+.statusNotification {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.notificationContent {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.notificationIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.closeNotificationButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.closeNotificationButton:hover {
+  opacity: 1;
+}
+
+.notificationSuccess {
+  background-color: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: rgb(21, 128, 61);
+}
+
+.notificationError {
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: rgb(185, 28, 28);
+}
+
+.notificationWarning {
+  background-color: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: rgb(180, 83, 9);
+}
+
+.notificationInfo {
+  background-color: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  color: rgb(29, 78, 216);
+}
+
+/* Стили для бейджа со счетчиком в табах */
+.tabsBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ef4444;
+  color: white;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  height: 20px;
+  min-width: 20px;
+  padding: 0 6px;
+  margin-left: 8px;
+}
+
+/* Стили для пустого состояния */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.emptyState p {
+  margin-top: 16px;
+  font-size: 0.95rem;
+}
+
+/* Стили для фильтрации по категориям */
+.filterCategories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 16px;
+}
+
+.categoryButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.categoryButton:hover {
+  background-color: #e5e7eb;
+}
+
+.categoryActive {
+  background-color: #4f46e5;
+  color: white;
+  border-color: #4f46e5;
+}
+
+.categoryActive:hover {
+  background-color: #4338ca;
+}
+
+.categoryIcon {
+  width: 1em;
+  height: 1em;
+}
+
+/* Стили для модального окна удаления */
+.modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background-color: white;
+  border-radius: 8px;
+  padding: 0;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modalHeader {
+  padding: 16px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.modalBody {
+  padding: 20px 24px;
+}
+
+.modalWarning {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 12px;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
+  gap: 12px;
+}
+
+.cancelButton {
+  padding: 8px 16px;
+  border-radius: 6px;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancelButton:hover {
+  background-color: #e5e7eb;
+}
+
+.deleteConfirmButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 6px;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.deleteConfirmButton:hover {
+  background-color: #dc2626;
+}
+
+/* Стили для кнопок управления уведомлениями */
+.notificationActions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.markReadButton,
+.archiveButton,
+.deleteButton {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.markReadButton {
+  color: #10b981;
+}
+
+.markReadButton:hover {
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+.archiveButton {
+  color: #6b7280;
+}
+
+.archiveButton:hover {
+  background-color: rgba(107, 114, 128, 0.1);
+}
+
+.deleteButton {
+  color: #ef4444;
+}
+
+.deleteButton:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}

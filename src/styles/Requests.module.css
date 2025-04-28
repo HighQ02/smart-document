@@ -62,6 +62,23 @@
     font-size: 0.8em;
 }
 
+.tabsTrigger .badgeCircle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #4f46e5;
+    color: white;
+    width: 22px;
+    height: 22px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 50%;
+    margin-left: 8px;
+}
+
+.tabsTrigger.active .badgeCircle {
+    background-color: #4338ca;
+}
 
 .tabsContent {
     margin-top: 20px;
@@ -210,4 +227,68 @@
 .buttonGroupHorizontal {
     display: flex;
     gap: 8px;
+}
+
+.actionButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    gap: 6px;
+}
+
+.actionIcon {
+    width: 1em;
+    height: 1em;
+}
+
+.viewButton {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+    border-color: rgba(59, 130, 246, 0.2);
+}
+
+.viewButton:hover {
+    background-color: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.viewButton:active {
+    background-color: rgba(59, 130, 246, 0.2);
+}
+
+.processButton {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #047857;
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+.processButton:hover {
+    background-color: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.processButton:active {
+    background-color: rgba(16, 185, 129, 0.2);
+}
+
+.warningButton {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: #b45309;
+    border-color: rgba(245, 158, 11, 0.2);
+}
+
+.warningButton:hover {
+    background-color: rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.warningButton:active {
+    background-color: rgba(245, 158, 11, 0.2);
 }

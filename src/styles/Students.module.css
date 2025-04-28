@@ -324,7 +324,266 @@
 }
 
 .button svg {
+    margin-right: 6px;
+}
+
+/* Стили для кнопки фильтра */
+.buttonFilter {
+    position: relative;
+    min-width: 42px;
+    width: 42px;
+    height: 38px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.buttonFilter:hover {
+    background-color: #f8f9fa;
+}
+
+.filterBadge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 10px;
+    height: 10px;
+    background-color: #dc3545;
+    border-radius: 50%;
+}
+
+.buttonPrimary {
+    background-color: #007bff;
+    border: 1px solid #007bff;
+    color: white;
+}
+
+.buttonPrimary:hover:not(:disabled) {
+    background-color: #0069d9;
+    border-color: #0062cc;
+}
+
+/* Стили для модальных окон */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background-color: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.modalHeader h3 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+
+.closeButton:hover {
+    background-color: #f8f9fa;
+    color: #000;
+}
+
+.modalContent {
+    padding: 20px;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.modalFooter {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 15px 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+/* Стили для формы в модальном окне */
+.formGroup {
+    margin-bottom: 15px;
+}
+
+.formGroup label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.formControl {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.formControl:focus {
+    color: #495057;
+    background-color: #fff;
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Стили для групп фильтров */
+.filterGroup {
+    margin-bottom: 15px;
+}
+
+/* Стили для загрузки файлов */
+.fileUpload {
+    position: relative;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.fileInput {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    opacity: 0;
+    outline: none;
+    cursor: pointer;
+    display: block;
+}
+
+.fileLabel {
+    display: inline-block;
+    padding: 8px 15px;
+    cursor: pointer;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #212529;
+    text-align: center;
+    user-select: none;
+    transition: all 0.15s ease-in-out;
+}
+
+.fileLabel:hover {
+    background-color: #e9ecef;
+}
+
+.fileHint {
+    margin-top: 5px;
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+/* Стили для чекбоксов */
+.checkboxContainer {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.checkboxContainer input[type="checkbox"] {
     margin-right: 8px;
-    width: 1em;
-    height: 1em;
+}
+
+.checkboxLabel {
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+/* Стили для состояний */
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    font-size: 1rem;
+    color: #6c757d;
+}
+
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.emptyIcon {
+    color: #dee2e6;
+    margin-bottom: 15px;
+}
+
+.emptyState p {
+    margin: 0;
+    color: #6c757d;
+}
+
+.emptySubtext {
+    font-size: 0.9rem;
+    margin-top: 5px;
+    color: #adb5bd;
+}
+
+/* Стили для иконок статуса документов */
+.completedIcon {
+    color: #28a745;
+    margin-left: 8px;
+}
+
+.pendingIcon {
+    color: #ffc107;
+    margin-left: 8px;
 }

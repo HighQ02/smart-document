@@ -1,5 +1,7 @@
 /* Documents.module.css */
 .documentsContainer {
+    padding: 20px;
+    max-width: 100%;
     opacity: 0;
     animation: fadeIn 0.5s ease-in-out forwards;
     color: #333;
@@ -23,15 +25,14 @@
 }
 
 .pageTitle {
-    font-size: 2em; /* Увеличиваем размер заголовка */
-    font-weight: 700; /* Более жирный шрифт */
+    font-size: 1.8em;
+    font-weight: bold;
     margin: 0;
-    color: #333;
 }
 
 .pageDescription {
-    color: #6b7280; /* Серый цвет текста, как на фото */
-    font-size: 1em; /* Размер текста описания */
+    color: #666;
+    font-size: 0.9em;
     margin: 4px 0 0 0;
 }
 
@@ -118,18 +119,25 @@ button {
     transform: translateY(-50%);
     width: 18px;
     height: 18px;
-    color: #9ca3af; /* Серый цвет иконки */
+    color: #6b7280; /* Серый цвет иконки */
 }
 
 .searchInput {
     width: 100%;
     padding: 10px 12px 10px 40px; /* Паддинг с учетом иконки */
-    border: 1px solid #d1d5db; /* Цвет обводки */
-    border-radius: 6px; /* Скругленные углы */
-    font-size: 1em;
+    border: 1px solid #e5e7eb; /* Цвет обводки */
+    border-radius: 8px; /* Скругленные углы */
+    font-size: 0.95em;
     box-sizing: border-box;
     background-color: #fff; /* Белый фон */
     color: #333;
+    transition: border-color 0.2s;
+}
+
+.searchInput:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
 .searchInput::placeholder {

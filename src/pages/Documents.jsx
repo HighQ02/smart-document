@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Search, FileText, Upload, Download, CheckCircle, XCircle, Eye } from 'lucide-react'; // Заменили QrCode на более подходящие иконки
+import { Search, FileText, Upload, Download, CheckCircle, XCircle, Eye, Filter, ChevronDown, ChevronUp, AlertTriangle, Tag, SortAsc, SortDesc, Check, Calendar, X } from 'lucide-react';
 import SidebarLayout from './../components/layouts/SidebarLayout';
 import { useAuth } from './../contexts/AuthContext';
 
-import styles from './../styles/Documents.module.css'; // Убедитесь, что путь правильный
+import styles from './../styles/Documents.module.css';
 
 const Documents = () => {
   const { user } = useAuth();
@@ -19,40 +19,48 @@ const Documents = () => {
   const [showApproveDialog, setShowApproveDialog] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    type: 'all',
+    status: 'all',
+    dateRange: 'all',
+    sortBy: 'date',
+    sortDirection: 'desc'
+  });
+  const [showDownloadNotification, setShowDownloadNotification] = useState(false);
+  const [downloadingFile, setDownloadingFile] = useState(null);
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [showTemplatePreview, setShowTemplatePreview] = useState(false);
 
   useEffect(() => {
     const fetchDocuments = async () => {
       setIsLoading(true);
       try {
-        // Замените на ваш актуальный эндпоинт для получения документов
         const response = await axios.get('/api/documents', {
           params: {
-            // Возможно, здесь нужно добавить параметры для фильтрации по роли пользователя
-            // Например, student_id для родителя, group_id для куратора, или без параметров для админа
-            ...(user?.role === 'parent' && { student_id: user.student_id }), // Пример фильтрации для родителя
-            // ...(user?.role === 'curator' && { group_id: user.group_id }), // Пример фильтрации для куратора
+            ...(user?.role === 'parent' && { student_id: user.student_id }),
           }
         });
 
         if (response.data && Array.isArray(response.data)) {
           const formattedDocs = response.data.map((doc) => ({
             id: doc.id,
-            name: doc.title || 'Без названия', // Убедимся, что есть название
+            name: doc.title || 'Без названия',
             type: doc.name?.endsWith('.pdf') ? 'PDF' :
                   doc.name?.endsWith('.docx') ? 'DOCX' : 'Файл',
             status: doc.status,
-            date: doc.created_at ? new Date(doc.created_at).toLocaleDateString('ru-RU') : 'Дата неизвестна', // Проверка на наличие даты
+            date: doc.created_at ? new Date(doc.created_at).toLocaleDateString('ru-RU') : 'Дата неизвестна',
             student_id: doc.student_id,
-            student_name: doc.student_name || 'Неизвестно' // Убедимся, что есть имя студента
+            student_name: doc.student_name || 'Неизвестно'
           }));
           setDocuments(formattedDocs);
         } else {
              console.error('Error fetching documents: Invalid data format', response.data);
-             setDocuments([]); // Устанавливаем пустой массив при ошибке формата
+             setDocuments([]);
         }
       } catch (error) {
         console.error('Error fetching documents:', error);
-        // Обработка ошибки: показать сообщение пользователю или установить пустое состояние
         setDocuments([]);
       } finally {
         setIsLoading(false);
@@ -61,7 +69,6 @@ const Documents = () => {
 
     const fetchTemplates = async () => {
       try {
-        // Замените на ваш актуальный эндпоинт для получения шаблонов
         const response = await axios.get('/api/document-templates');
         if (response.data && Array.isArray(response.data)) {
            setTemplates(response.data);
@@ -76,22 +83,44 @@ const Documents = () => {
     };
 
     fetchDocuments();
-    // Загружаем шаблоны только для админа
-    if (user?.role === 'admin') {
+    if (user?.role === 'admin' || user?.role === 'curator') {
       fetchTemplates();
     }
+  }, [user?.role, user?.student_id]);
 
-    // Убираем setTimeout, если нет необходимости в имитации задержки
-    // const timer = setTimeout(() => setIsLoading(false), 1000);
-    // return () => clearTimeout(timer);
-
-  }, [user?.role, user?.student_id]); // Добавляем user?.student_id в зависимости, если используется для фильтрации
-
-
-  const filteredDocuments = documents.filter(doc =>
-    (doc.name?.toLowerCase().includes(searchQuery.toLowerCase()) || '') || // Добавлена проверка на doc.name
-    (doc.student_name?.toLowerCase().includes(searchQuery.toLowerCase()) || '') // Добавлена проверка на doc.student_name
-  );
+  const filteredDocuments = documents.filter(doc => {
+    const matchesSearch = 
+      doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      doc.student_name.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesType = filters.type === 'all' || doc.type === filters.type;
+    
+    const matchesStatus = filters.status === 'all' || doc.status === filters.status;
+    
+    const matchesDate = filters.dateRange === 'all';
+    
+    return matchesSearch && matchesType && matchesStatus && matchesDate;
+  }).sort((a, b) => {
+    const field = filters.sortBy;
+    
+    const direction = filters.sortDirection === 'asc' ? 1 : -1;
+    
+    if (field === 'date') {
+      const dateA = a.date.split('.').reverse().join('-');
+      const dateB = b.date.split('.').reverse().join('-');
+      return direction * (new Date(dateA) - new Date(dateB));
+    }
+    
+    if (field === 'name') {
+      return direction * a.name.localeCompare(b.name);
+    }
+    
+    if (field === 'status') {
+      return direction * a.status.localeCompare(b.status);
+    }
+    
+    return 0;
+  });
 
   const translateStatus = (status) => {
     switch (status) {
@@ -103,7 +132,7 @@ const Documents = () => {
         return 'Отклонен';
       case 'new':
         return 'Новый';
-      case 'archived': // Добавляем статус архивирован
+      case 'archived':
         return 'В архиве';
       default:
         return status;
@@ -121,7 +150,7 @@ const Documents = () => {
            case 'new':
               return styles.statusNew;
            case 'archived':
-              return styles.statusArchived; // Добавляем класс для архивированных
+              return styles.statusArchived;
           default:
               return '';
       }
@@ -131,7 +160,7 @@ const Documents = () => {
     if (!selectedDoc) return;
     setIsLoading(true);
     try {
-      const response = await axios.put(`/api/documents/${selectedDoc.id}/status`, { // Пример эндпоинта для смены статуса
+      const response = await axios.put(`/api/documents/${selectedDoc.id}/status`, {
           status: 'approved',
           reviewed_by: user?.id,
       });
@@ -144,8 +173,7 @@ const Documents = () => {
           );
           console.log(`Документ "${selectedDoc.name}" был успешно одобрен`);
       } else {
-         // Обработка ошибок HTTP (не 200)
-         const errorData = await response.json(); // Попытка прочитать тело ответа
+         const errorData = await response.json();
          console.error(`Ошибка сервера при одобрении: ${response.status}`, errorData);
          alert(`Ошибка при одобрении документа: ${errorData.message || response.statusText}`);
       }
@@ -163,14 +191,13 @@ const Documents = () => {
     if (!selectedDoc) return;
     if (!rejectReason.trim()) {
          console.log('Укажите причину отклонения');
-         // Возможно, стоит показать пользователю уведомление
          return;
     }
     setIsLoading(true);
     try {
-      const response = await axios.put(`/api/documents/${selectedDoc.id}/status`, { // Пример эндпоинта для смены статуса
+      const response = await axios.put(`/api/documents/${selectedDoc.id}/status`, {
           status: 'rejected',
-          review_comment: rejectReason.trim(), // Убираем лишние пробелы
+          review_comment: rejectReason.trim(),
           reviewed_by: user?.id,
       });
 
@@ -182,7 +209,6 @@ const Documents = () => {
           );
           console.log(`Документ "${selectedDoc.name}" был отклонен`);
        } else {
-          // Обработка ошибок HTTP (не 200)
           const errorData = await response.json();
           console.error(`Ошибка сервера при отклонении: ${response.status}`, errorData);
           alert(`Ошибка при отклонении документа: ${errorData.message || response.statusText}`);
@@ -198,85 +224,39 @@ const Documents = () => {
     }
   };
 
-  // Функция для скачивания документа
-  const downloadDocument = async (doc) => {
-    try {
-      // Замените на ваш актуальный эндпоинт для скачивания
-      const response = await axios.get(`/api/documents/${doc.id}/download`, {
-        responseType: 'blob', // Важно для скачивания файлов
-      });
-
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      // Попытка получить имя файла из заголовков или использовать имя из данных
-      const contentDisposition = response.headers['content-disposition'];
-      let filename = doc.name || 'document'; // Имя файла по умолчанию
-      if (contentDisposition) {
-        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
-        if (filenameMatch && filenameMatch[1]) {
-          filename = filenameMatch[1];
+  const downloadDocument = (doc) => {
+    setShowDownloadNotification(true);
+    setDownloadingFile(doc);
+    setDownloadProgress(0);
+    
+    const interval = setInterval(() => {
+      setDownloadProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            setShowDownloadNotification(false);
+          }, 1500);
+          return 100;
         }
-      }
-      link.setAttribute('download', filename);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (error) {
-      console.error('Error downloading document:', error);
-      alert('Ошибка при скачивании документа.');
-    }
+        return prev + 10;
+      });
+    }, 200);
   };
 
-   // Функция для просмотра документа (для родителя)
-  const viewDocument = (doc) => {
-      console.log('Просмотр документа:', doc);
-      // Реализация просмотра документа. Возможно, открытие в новом окне
-      // или модальном окне с iframe/pdf-viewer
-      alert(`Просмотр документа "${doc.name}" (Функционал в разработке)`);
-  }
+  const cancelDownload = () => {
+    setShowDownloadNotification(false);
+    setDownloadingFile(null);
+    setDownloadProgress(0);
+  };
 
-  // Функция для архивирования документа (для админа)
-  const archiveDocument = async (doc) => {
-      if (!window.confirm(`Вы уверены, что хотите архивировать документ "${doc.name}"?`)) {
-          return;
-      }
-      setIsLoading(true);
-      try {
-           // Замените на ваш актуальный эндпоинт для архивирования
-          const response = await axios.put(`/api/documents/${doc.id}/status`, {
-               status: 'archived',
-               reviewed_by: user?.id,
-           });
+  const previewTemplate = (template) => {
+    setSelectedTemplate(template);
+    setShowTemplatePreview(true);
+  };
 
-           if (response.status === 200) {
-               setDocuments(prevDocs =>
-                   prevDocs.map(d =>
-                       d.id === doc.id ? { ...d, status: 'archived' } : d
-                   )
-               );
-               console.log(`Документ "${doc.name}" был архивирован`);
-           } else {
-               const errorData = await response.json();
-               console.error(`Ошибка сервера при архивировании: ${response.status}`, errorData);
-               alert(`Ошибка при архивировании документа: ${errorData.message || response.statusText}`);
-           }
-      } catch (error) {
-          console.error('Error archiving document:', error);
-          alert('Ошибка при архивировании документа. Попробуйте снова.');
-      } finally {
-          setIsLoading(false);
-      }
-  }
-
-   // Функция для загрузки документа заново (для родителя после отклонения)
-   const uploadAgain = (doc) => {
-        console.log('Загрузить заново документ:', doc);
-        // Перенаправление на страницу загрузки с предзаполненными данными
-        // или открытие модального окна для загрузки новой версии
-        navigate('/create-document', { state: { documentToReplaceId: doc.id, documentName: doc.name } });
-   }
-
+  const downloadTemplate = (template) => {
+    downloadDocument(template);
+  };
 
   const getActionButtons = (doc) => {
     switch (user?.role) {
@@ -378,6 +358,47 @@ const Documents = () => {
     }
   };
 
+  const viewDocument = (doc) => {
+      console.log('Просмотр документа:', doc);
+      alert(`Просмотр документа "${doc.name}" (Функционал в разработке)`);
+  }
+
+  const archiveDocument = async (doc) => {
+      if (!window.confirm(`Вы уверены, что хотите архивировать документ "${doc.name}"?`)) {
+          return;
+      }
+      setIsLoading(true);
+      try {
+           const response = await axios.put(`/api/documents/${doc.id}/status`, {
+               status: 'archived',
+               reviewed_by: user?.id,
+           });
+
+           if (response.status === 200) {
+               setDocuments(prevDocs =>
+                   prevDocs.map(d =>
+                       d.id === doc.id ? { ...d, status: 'archived' } : d
+                   )
+               );
+               console.log(`Документ "${doc.name}" был архивирован`);
+           } else {
+               const errorData = await response.json();
+               console.error(`Ошибка сервера при архивировании: ${response.status}`, errorData);
+               alert(`Ошибка при архивировании документа: ${errorData.message || response.statusText}`);
+           }
+      } catch (error) {
+          console.error('Error archiving document:', error);
+          alert('Ошибка при архивировании документа. Попробуйте снова.');
+      } finally {
+          setIsLoading(false);
+      }
+  }
+
+  const uploadAgain = (doc) => {
+        console.log('Загрузить заново документ:', doc);
+        navigate('/create-document', { state: { documentToReplaceId: doc.id, documentName: doc.name } });
+   }
+
   return (
     <SidebarLayout>
       <div className={styles.documentsContainer}>
@@ -387,7 +408,6 @@ const Documents = () => {
             <p className={styles.pageDescription}>Управление документами и файлами</p>
           </div>
 
-          {/* Кнопка "Создать/Загрузить документ" всегда видима для соответствующих ролей */}
           {(user?.role === 'admin' || user?.role === 'curator' || user?.role === 'parent') && (
             <button className={styles.btnPrimary} onClick={() => navigate('/create-document')}>
               <Upload style={{width: '1em', height: '1em', marginRight: '6px'}} />
@@ -396,7 +416,7 @@ const Documents = () => {
           )}
         </div>
 
-        <div className={styles.searchAndFilter}> {/* Объединяем поиск и фильтр в один блок */}
+        <div className={styles.searchAndFilter}>
           <div className={styles.searchInputContainer}>
             <Search style={{width: '1.1em', height: '1.1em'}} className={styles.searchIcon} />
             <input
@@ -408,11 +428,171 @@ const Documents = () => {
               disabled={isLoading}
             />
           </div>
-          {/* Placeholder для будущих фильтров, как на фото */}
-          <button className={styles.btnOutline} disabled={isLoading}>
-                Фильтры
+          <button 
+            className={styles.filterButton}
+            onClick={() => setShowFilters(!showFilters)}
+            aria-expanded={showFilters}
+          >
+            <Filter className={styles.filterIcon} />
+            <span className={styles.filterButtonText}>Фильтры</span>
+            {showFilters ? <ChevronUp /> : <ChevronDown />}
           </button>
         </div>
+
+        {showFilters && (
+          <div className={styles.filtersPanel}>
+            <div className={styles.filterGroup}>
+              <h4 className={styles.filterGroupTitle}>
+                <Tag className={styles.filterGroupIcon} />
+                Тип документа
+              </h4>
+              <div className={styles.filterOptions}>
+                <button 
+                  className={`${styles.filterOption} ${filters.type === 'all' ? styles.activeFilter : ''}`}
+                  onClick={() => setFilters({...filters, type: 'all'})}
+                >
+                  Все
+                </button>
+                <button 
+                  className={`${styles.filterOption} ${filters.type === 'PDF' ? styles.activeFilter : ''}`}
+                  onClick={() => setFilters({...filters, type: 'PDF'})}
+                >
+                  PDF
+                </button>
+                <button 
+                  className={`${styles.filterOption} ${filters.type === 'DOCX' ? styles.activeFilter : ''}`}
+                  onClick={() => setFilters({...filters, type: 'DOCX'})}
+                >
+                  DOCX
+                </button>
+              </div>
+            </div>
+            
+            <div className={styles.filterGroup}>
+              <h4 className={styles.filterGroupTitle}>
+                <Check className={styles.filterGroupIcon} />
+                Статус
+              </h4>
+              <div className={styles.filterOptions}>
+                <button 
+                  className={`${styles.filterOption} ${filters.status === 'all' ? styles.activeFilter : ''}`}
+                  onClick={() => setFilters({...filters, status: 'all'})}
+                >
+                  Все
+                </button>
+                <button 
+                  className={`${styles.filterOption} ${filters.status === 'new' ? styles.activeFilter : ''}`}
+                  onClick={() => setFilters({...filters, status: 'new'})}
+                >
+                  Новые
+                </button>
+                <button 
+                  className={`${styles.filterOption} ${filters.status === 'pending' ? styles.activeFilter : ''}`}
+                  onClick={() => setFilters({...filters, status: 'pending'})}
+                >
+                  Ожидающие
+                </button>
+                <button 
+                  className={`${styles.filterOption} ${filters.status === 'approved' ? styles.activeFilter : ''}`}
+                  onClick={() => setFilters({...filters, status: 'approved'})}
+                >
+                  Одобренные
+                </button>
+                <button 
+                  className={`${styles.filterOption} ${filters.status === 'rejected' ? styles.activeFilter : ''}`}
+                  onClick={() => setFilters({...filters, status: 'rejected'})}
+                >
+                  Отклоненные
+                </button>
+              </div>
+            </div>
+            
+            <div className={styles.filterGroup}>
+              <h4 className={styles.filterGroupTitle}>
+                <Calendar className={styles.filterGroupIcon} />
+                Период
+              </h4>
+              <div className={styles.filterOptions}>
+                <button 
+                  className={`${styles.filterOption} ${filters.dateRange === 'all' ? styles.activeFilter : ''}`}
+                  onClick={() => setFilters({...filters, dateRange: 'all'})}
+                >
+                  Все время
+                </button>
+                <button 
+                  className={`${styles.filterOption} ${filters.dateRange === 'week' ? styles.activeFilter : ''}`}
+                  onClick={() => setFilters({...filters, dateRange: 'week'})}
+                >
+                  Неделя
+                </button>
+                <button 
+                  className={`${styles.filterOption} ${filters.dateRange === 'month' ? styles.activeFilter : ''}`}
+                  onClick={() => setFilters({...filters, dateRange: 'month'})}
+                >
+                  Месяц
+                </button>
+                <button 
+                  className={`${styles.filterOption} ${filters.dateRange === 'year' ? styles.activeFilter : ''}`}
+                  onClick={() => setFilters({...filters, dateRange: 'year'})}
+                >
+                  Год
+                </button>
+              </div>
+            </div>
+            
+            <div className={styles.filterGroup}>
+              <h4 className={styles.filterGroupTitle}>
+                <SortAsc className={styles.filterGroupIcon} />
+                Сортировка
+              </h4>
+              <div className={styles.filterOptions}>
+                <div className={styles.sortOptionGroup}>
+                  <select 
+                    className={styles.sortSelect}
+                    value={filters.sortBy}
+                    onChange={(e) => setFilters({...filters, sortBy: e.target.value})}
+                  >
+                    <option value="date">По дате</option>
+                    <option value="name">По названию</option>
+                    <option value="status">По статусу</option>
+                  </select>
+                  <button 
+                    className={styles.sortDirectionButton}
+                    onClick={() => setFilters({
+                      ...filters, 
+                      sortDirection: filters.sortDirection === 'asc' ? 'desc' : 'asc'
+                    })}
+                  >
+                    {filters.sortDirection === 'asc' ? <SortAsc /> : <SortDesc />}
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div className={styles.filterActions}>
+              <button 
+                className={styles.resetFiltersButton}
+                onClick={() => setFilters({
+                  type: 'all',
+                  status: 'all',
+                  dateRange: 'all',
+                  sortBy: 'date',
+                  sortDirection: 'desc'
+                })}
+              >
+                Сбросить
+              </button>
+              <button 
+                className={styles.saveFiltersButton}
+                onClick={() => {
+                  setShowFilters(false);
+                }}
+              >
+                Применить фильтры
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className={styles.card}>
           <div className={styles.cardHeader}>
@@ -444,20 +624,19 @@ const Documents = () => {
                   <thead>
                     <tr>
                       <th>Название</th>
-                      {/* Колонка "Студент" отображается только для админа и куратора */}
                       {(user?.role === 'admin' || user?.role === 'curator') && (
                         <th>Студент</th>
                       )}
                       <th>Тип</th>
                       <th>Статус</th>
                       <th>Дата</th>
-                      <th className={styles.actionsHeader}>Действия</th> {/* Добавлен класс для стилизации заголовка */}
+                      <th className={styles.actionsHeader}>Действия</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredDocuments.map((doc) => (
                       <tr key={doc.id}>
-                        <td className={styles.documentNameCell}> {/* Добавлен класс для ячейки с названием */}
+                        <td className={styles.documentNameCell}>
                           <FileText style={{width: '1.1em', height: '1.1em'}} />
                           {doc.name}
                         </td>
@@ -500,19 +679,14 @@ const Documents = () => {
                       <div key={template.id} className={styles.templateCard}>
                         <div className={styles.templateHeader}>
                           <div className={styles.templateTitle}>
-                            <FileText style={{width: '1.1em', height: '1.1em', color: '#007bff'}} /> {/* Цвет иконки */}
+                            <FileText style={{width: '1.1em', height: '1.1em', color: '#007bff'}} />
                             <h3>Шаблон: {template.name}</h3>
                           </div>
-                          {/* Кнопка добавления (плюс) на фото */}
-                          {/* <button className={styles.btnAddTemplate}>
-                              <Plus style={{width: '1em', height: '1em'}} />
-                          </button> */}
                         </div>
                         <p className={styles.templateDescription}>
-                          {template.description || 'Без описания'} {/* Проверка на описание */}
+                          {template.description || 'Без описания'}
                         </p>
                         <div className={styles.templateActions}>
-                          {/* Возможно, кнопка редактирования нужна только для админа */}
                           <button className={styles.btnOutline} disabled={isLoading}>
                             Редактировать
                           </button>
@@ -529,7 +703,104 @@ const Documents = () => {
           </div>
         )}
 
-        {/* Модальное окно одобрения */}
+        {showDownloadNotification && downloadingFile && (
+          <div className={styles.downloadNotification}>
+            <div className={styles.downloadNotificationContent}>
+              <div className={styles.downloadNotificationHeader}>
+                <FileText className={styles.downloadNotificationIcon} />
+                <div className={styles.downloadNotificationInfo}>
+                  <p className={styles.downloadNotificationTitle}>
+                    {downloadProgress < 100 ? 'Скачивание файла...' : 'Файл скачан'}
+                  </p>
+                  <p className={styles.downloadNotificationFilename}>{downloadingFile.name}</p>
+                </div>
+                <button 
+                  className={styles.downloadNotificationClose}
+                  onClick={() => setShowDownloadNotification(false)}
+                >
+                  <X className={styles.closeIcon} />
+                </button>
+              </div>
+              
+              <div className={styles.downloadProgressContainer}>
+                <div 
+                  className={styles.downloadProgressBar} 
+                  style={{width: `${downloadProgress}%`}}
+                ></div>
+              </div>
+              
+              <div className={styles.downloadNotificationFooter}>
+                {downloadProgress < 100 ? (
+                  <button 
+                    className={styles.cancelDownloadButton}
+                    onClick={cancelDownload}
+                  >
+                    Отменить
+                  </button>
+                ) : (
+                  <button 
+                    className={styles.openFolderButton}
+                    onClick={() => {
+                      setShowDownloadNotification(false);
+                    }}
+                  >
+                    Открыть папку
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showTemplatePreview && selectedTemplate && (
+          <div className={styles.templatePreviewModal}>
+            <div className={styles.templatePreviewContent}>
+              <div className={styles.templatePreviewHeader}>
+                <h3>Предпросмотр шаблона</h3>
+                <button 
+                  className={styles.templatePreviewClose}
+                  onClick={() => setShowTemplatePreview(false)}
+                >
+                  <X className={styles.closeIcon} />
+                </button>
+              </div>
+              
+              <div className={styles.templatePreviewBody}>
+                <div className={styles.templatePreviewInfo}>
+                  <h4>{selectedTemplate.name}</h4>
+                  <p>{selectedTemplate.description}</p>
+                  <p>Тип файла: {selectedTemplate.type}</p>
+                </div>
+                
+                <div className={styles.templatePreviewImageContainer}>
+                  <div className={styles.templatePreviewPlaceholder}>
+                    <FileText className={styles.templatePreviewPlaceholderIcon} />
+                    <p>Предпросмотр документа</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className={styles.templatePreviewFooter}>
+                <button 
+                  className={styles.templatePreviewCancel}
+                  onClick={() => setShowTemplatePreview(false)}
+                >
+                  Закрыть
+                </button>
+                <button 
+                  className={styles.templatePreviewDownload}
+                  onClick={() => {
+                    downloadTemplate(selectedTemplate);
+                    setShowTemplatePreview(false);
+                  }}
+                >
+                  Скачать
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {showApproveDialog && selectedDoc && (
           <div className={styles.modalBackdrop}>
             <div className={styles.modal}>
@@ -542,7 +813,7 @@ const Documents = () => {
               <div className={styles.modalFooter}>
                 <button className={styles.btnOutline} onClick={() => { setShowApproveDialog(false); setSelectedDoc(null); }} disabled={isLoading}>Отмена</button>
                 <button className={styles.btnPrimary} onClick={approveDocument} disabled={isLoading}>
-                  <CheckCircle style={{width: '1em', height: '1em', marginRight: '6px'}} /> {/* Иконка Одобрить */}
+                  <CheckCircle style={{width: '1em', height: '1em', marginRight: '6px'}} />
                   Одобрить
                 </button>
               </div>
@@ -550,7 +821,6 @@ const Documents = () => {
           </div>
         )}
 
-        {/* Модальное окно отклонения */}
         {showRejectDialog && selectedDoc && (
           <div className={styles.modalBackdrop}>
             <div className={styles.modal}>
@@ -579,7 +849,7 @@ const Documents = () => {
                   onClick={rejectDocument}
                   disabled={!rejectReason.trim() || isLoading}
                 >
-                  <XCircle style={{width: '1em', height: '1em', marginRight: '6px'}} /> {/* Иконка Отклонить */}
+                  <XCircle style={{width: '1em', height: '1em', marginRight: '6px'}} />
                   Отклонить
                 </button>
               </div>
