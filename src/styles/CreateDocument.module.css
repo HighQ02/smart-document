@@ -1,8 +1,5 @@
 /* CreateDocument.module.css */
 .createDocumentContainer {
-    padding: 20px;
-    max-width: 900px;
-    margin: 0 auto;
     opacity: 0;
     animation: fadeIn 0.5s ease-in-out forwards;
 }

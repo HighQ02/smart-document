@@ -207,7 +207,7 @@
 
 @media (min-width: 1024px) {
     .sidebar {
-        position: static;
+        position: sticky;
         transform: translateX(0);
         flex-shrink: 0;
         height: 100vh;

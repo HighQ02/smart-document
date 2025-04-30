@@ -1,4 +1,5 @@
 /* Documents.module.css */
+
 .documentsContainer {
     opacity: 0;
     animation: fadeIn 0.5s ease-in-out forwards;
@@ -12,86 +13,81 @@
     }
 }
 
-/* Заголовок страницы и кнопка */
 .documentsHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px; /* Увеличиваем отступ */
+    margin-bottom: 24px;
     flex-wrap: wrap;
-    gap: 16px; /* Увеличиваем отступ между элементами */
+    gap: 16px;
 }
 
 .pageTitle {
-    font-size: 2em; /* Увеличиваем размер заголовка */
-    font-weight: 700; /* Более жирный шрифт */
+    font-size: 1.8em;
+    font-weight: 700;
     margin: 0;
     color: #333;
 }
 
 .pageDescription {
-    color: #6b7280; /* Серый цвет текста, как на фото */
-    font-size: 1em; /* Размер текста описания */
+    color: hsl(215, 16%, 47%); /* Muted Foreground */
+    font-size: 1em;
     margin: 4px 0 0 0;
 }
 
 /* Стили кнопок */
-/* Базовый стиль кнопки */
-button {
+.btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 10px 18px; /* Увеличиваем паддинг */
+    padding: 8px 14px;
     border: none;
-    border-radius: 6px; /* Более скругленные углы */
+    border-radius: 5px;
     cursor: pointer;
     font-size: 0.9em;
-    font-weight: 500; /* Средняя толщина шрифта */
-    height: 38px; /* Фиксированная высота кнопки */
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    font-weight: 500;
+    height: 36px;
+    transition: background-color 0.2s ease, opacity 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     text-decoration: none;
-    line-height: 1; /* Убираем лишние отступы по высоте */
-}
-
-.btn svg { /* Иконки внутри кнопок */
-    margin-right: 8px; /* Увеличиваем отступ справа от иконки */
-    width: 1.1em; /* Размер иконки */
-    height: 1.1em; /* Размер иконки */
+    line-height: 1;
 }
 
 .btnPrimary {
-    background-color: #2563eb; /* Синий цвет, как на фото */
-    color: #fff;
+    background-color: hsl(221, 83%, 53%); /* Primary */
+    color: hsl(210, 40%, 98%); /* Primary Foreground */
+     padding: 10px 18px;
+     height: 40px;
+     font-size: 1em;
+     font-weight: 600;
 }
 
 .btnPrimary:hover:not(:disabled) {
-    background-color: #1d4ed8; /* Темнее при наведении */
+    background-color: hsla(221, 83%, 53%, 0.9);
 }
 
 .btnOutline {
     background-color: transparent;
-    color: #4f46e5; /* Синий цвет для outline кнопок */
-    border: 1px solid #e5e7eb; /* Светлая обводка */
-    color: #333; /* Черный текст */
+    color: hsl(222, 47%, 11%); /* Foreground */
+    border: 1px solid hsl(214, 32%, 91%); /* Border */
 }
 
 .btnOutline:hover:not(:disabled) {
-    background-color: #f3f4f6; /* Легкий фон при наведении */
-    border-color: #d1d5db; /* Темнее обводка */
+    border-color: hsl(221, 83%, 53%); /* Primary */
+    color: hsl(221, 83%, 53%); /* Primary */
 }
 
 .btnDanger {
-    background-color: #ef4444; /* Красный цвет */
-    color: #fff;
-    border: 1px solid #ef4444;
+    background-color: hsl(0, 84%, 60%); /* Destructive */
+    color: hsl(210, 40%, 98%); /* Destructive Foreground */
+    border: 1px solid hsl(0, 84%, 60%);
 }
 
 .btnDanger:hover:not(:disabled) {
-    background-color: #dc2626; /* Темнее при наведении */
+    background-color: hsl(0, 84%, 50%);
 }
 
 .btn:disabled {
-    opacity: 0.5; /* Уменьшаем прозрачность */
+    opacity: 0.6;
     cursor: not-allowed;
 }
 
@@ -100,66 +96,93 @@ button {
 .searchAndFilter {
     display: flex;
     align-items: center;
-    gap: 12px; /* Отступ между поиском и кнопкой фильтра */
-    margin-bottom: 24px; /* Отступ снизу */
-    flex-wrap: wrap; /* Перенос на новую строку на маленьких экранах */
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
 }
 
 .searchInputContainer {
     position: relative;
     flex-grow: 1;
-    min-width: 200px; /* Минимальная ширина для поля поиска */
+    min-width: 250px;
 }
 
 .searchIcon {
     position: absolute;
-    left: 12px; /* Отступ слева */
+    left: 12px;
     top: 50%;
     transform: translateY(-50%);
     width: 18px;
     height: 18px;
-    color: #9ca3af; /* Серый цвет иконки */
+    color: hsl(215, 16%, 47%); /* Muted Foreground */
 }
 
 .searchInput {
     width: 100%;
-    padding: 10px 12px 10px 40px; /* Паддинг с учетом иконки */
-    border: 1px solid #d1d5db; /* Цвет обводки */
-    border-radius: 6px; /* Скругленные углы */
+    padding: 8px 12px 8px 38px;
+    border: 1px solid hsl(214, 32%, 91%);
+    border-radius: 4px;
     font-size: 1em;
     box-sizing: border-box;
-    background-color: #fff; /* Белый фон */
-    color: #333;
+    background-color: hsl(0, 0%, 100%); /* Background */
+    color: hsl(222, 47%, 11%);
+    height: 36px;
 }
 
 .searchInput::placeholder {
-    color: #9ca3af; /* Цвет плейсхолдера */
+    color: hsl(215, 16%, 47%);
 }
+
+.filterControls {
+    display: flex; /* Для выравнивания элементов фильтров */
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.selectInput {
+   padding: 8px 12px;
+   border: 1px solid hsl(214, 32%, 91%);
+   border-radius: 4px;
+   font-size: 1em;
+   height: 36px;
+   background-color: hsl(0, 0%, 100%);
+   color: hsl(222, 47%, 11%);
+   cursor: pointer;
+}
+
+.selectInput:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 
 /* Стили карточек */
 .card {
-    border: 1px solid #e5e7eb; /* Цвет обводки */
-    border-radius: 8px; /* Скругленные углы */
-    padding: 20px; /* Увеличиваем паддинг */
-    background-color: #fff; /* Белый фон */
-    margin-bottom: 24px; /* Отступ снизу */
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Легкая тень */
+    border: 1px solid hsl(214, 32%, 91%);
+    border-radius: 8px;
+    padding: 20px;
+    background-color: hsl(0, 0%, 100%);
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px hsla(0,0,0,0.09);
 }
 
 .cardHeader {
-    margin-bottom: 20px; /* Увеличиваем отступ */
+    margin-bottom: 20px;
     padding: 0;
+    border-bottom: 1px solid hsl(214, 32%, 91%);
+    padding-bottom: 15px;
 }
 
 .cardTitle {
-    font-size: 1.25em; /* Увеличиваем размер заголовка */
-    font-weight: 600; /* Средне-жирный шрифт */
+    font-size: 1.15em;
+    font-weight: 600;
     margin: 0;
-    color: #333;
+    color: hsl(222, 47%, 11%);
 }
 
 .cardDescription {
-    color: #6b7280; /* Серый цвет текста */
+    color: hsl(215, 16%, 47%);
     font-size: 0.95em;
     margin: 4px 0 0 0;
 }
@@ -170,119 +193,159 @@ button {
 
 /* Стили таблицы документов */
 .tableContainer {
-    border: 1px solid #e5e7eb; /* Цвет обводки */
-    border-radius: 8px; /* Скругленные углы */
-    overflow: hidden; /* Скрываем содержимое, выходящее за границы */
+    border: 1px solid hsl(214, 32%, 91%);
+    border-radius: 8px;
+    overflow: hidden;
     width: 100%;
     box-sizing: border-box;
 }
 
 .documentsTable {
     width: 100%;
-    border-collapse: collapse; /* Убираем двойные границы */
+    border-collapse: collapse;
     font-size: 0.95em;
 }
 
 .documentsTable th,
 .documentsTable td {
-    padding: 14px 12px; /* Увеличиваем паддинг ячеек */
+    padding: 12px;
     text-align: left;
-    border-bottom: 1px solid #e5e7eb; /* Цвет нижней границы ячейки */
+    border-bottom: 1px solid hsl(214, 32%, 91%);
     vertical-align: middle;
+     color: hsl(222, 47%, 11%);
 }
 
 .documentsTable th {
-    font-weight: 600; /* Средне-жирный шрифт заголовков */
-    color: #4b5563; /* Темно-серый цвет */
-    background-color: #f9fafb; /* Светло-серый фон заголовка */
+    font-weight: 600;
+    color: hsl(215, 16%, 47%);
+    background-color: hsl(210, 40%, 96%);
 }
 
 .documentsTable tbody tr:last-child td {
-    border-bottom: none; /* Убираем нижнюю границу у последней строки */
+    border-bottom: none;
 }
 
 .documentsTable tbody tr:hover {
-    background-color: #f3f4f6; /* Светлый фон при наведении на строку */
+    background-color: hsl(210, 40%, 96%); /* Muted */
 }
 
-/* Стили для ячейки с названием документа */
 .documentNameCell {
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #333;
-    font-weight: 500; /* Немного жирнее название */
-    height: 67px;
+    color: hsl(222, 47%, 11%);
+    font-weight: 500;
 }
 
-.documentNameCell svg { /* Иконка файла */
-     width: 1.2em;
-     height: 1.2em;
-     color: #6b7280; /* Серый цвет иконки */
+.documentNameCell svg {
+     width: 1.1em;
+     height: 1.1em;
+     color: hsl(215, 16%, 47%);
 }
 
-/* Стили заголовка столбца "Действия" */
 .actionsHeader {
-   text-align: center; /* Выравнивание по центру, как на фото */
+   text-align: center;
 }
-
 
 /* Стили статусов (Badge) */
 .statusBadge {
     display: inline-block;
-    padding: 5px 12px; /* Увеличиваем паддинг */
-    border-radius: 9999px; /* Полностью скругленные углы */
-    font-size: 0.8em;
-    font-weight: 600; /* Жирный шрифт */
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: 600;
     white-space: nowrap;
-    text-transform: uppercase; /* Верхний регистр */
+    text-transform: none;
+    border: 1px solid transparent;
 }
 
-/* Цвета статусов */
-.statusApproved { background-color: #dcfce7; color: #16a34a; } /* Светло-зеленый, темно-зеленый */
-.statusPending { background-color: #fef9c3; color: #eab308; } /* Светло-желтый, темно-желтый */
-.statusRejected { background-color: #fee2e2; color: #ef4444; } /* Светло-красный, красный */
-.statusNew { background-color: #e0f2fe; color: #0284c7;} /* Светло-синий, синий */
-.statusArchived { background-color: #e5e7eb; color: #6b7280; } /* Серый фон, серый текст для архива */
+.statusApproved { background-color: hsl(142, 70%, 94%); color: hsl(142, 70%, 40%); border-color: hsl(142, 70%, 84%); }
+.statusPending { background-color: hsl(48, 96%, 89%); color: hsl(48, 96%, 35%); border-color: hsl(48, 96%, 79%); }
+.statusRejected { background-color: hsl(0, 84%, 94%); color: hsl(0, 84%, 60%); border-color: hsl(0, 84%, 84%); }
+.statusNew { background-color: hsl(210, 90%, 96%); color: hsl(210, 90%, 40%); border-color: hsl(210, 90%, 86%);}
+.statusArchived { background-color: hsl(215, 20%, 90%); color: hsl(215, 20%, 50%); border-color: hsl(215, 20%, 80%); }
 
 
-/* Стили блока действий в таблице */
 .documentActions {
     display: flex;
-    gap: 6px; /* Уменьшаем отступ между кнопками действий */
+    gap: 6px;
     flex-wrap: wrap;
-    justify-content: center; /* Выравнивание по центру */
+    justify-content: center;
 }
 
-/* Стили для контейнеров загрузки и пустого состояния */
 .loadingContainer, .emptyContainer {
     text-align: center;
-    padding: 40px 20px; /* Увеличиваем вертикальный паддинг */
-    color: #6b7280; /* Серый цвет */
+    padding: 40px 20px;
+    color: hsl(215, 16%, 47%);
     font-size: 1.1em;
 }
 
-/* Стили сетки шаблонов для админа */
+/* Стили для пагинации (Показать больше) */
+.paginationControls {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.showMoreButton {
+    background: none;
+    border: none;
+    color: hsl(221, 83%, 53%); /* Primary Color */
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.showMoreButton:hover:not(:disabled) {
+    color: hsla(221, 83%, 53%, 0.8);
+    text-decoration: underline;
+}
+
+.showMoreButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.loadingSpinner {
+    animation: spin 1s linear infinite;
+}
+
+.loadingSpinnerSmall {
+    animation: spin 1s linear infinite;
+    width: 1em;
+    height: 1em;
+    margin-right: 8px;
+    vertical-align: -0.125em; /* Align with text */
+}
+
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+/* Стили сетки шаблонов */
 .templatesGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Настройка колонок */
-    gap: 20px; /* Увеличиваем отступ между карточками */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
 }
 
 .templateCard {
-    border: 1px solid #e5e7eb; /* Цвет обводки */
-    border-radius: 8px; /* Скругленные углы */
-    padding: 20px; /* Увеличиваем паддинг */
-    background-color: #f9fafb; /* Светло-серый фон */
+    border: 1px solid hsl(214, 32%, 91%);
+    border-radius: 8px;
+    padding: 20px;
+    background-color: hsl(0, 0%, 100%);
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Распределяем содержимое по высоте */
+    justify-content: space-between;
+    box-shadow: 0 1px 4px hsla(0,0,0,0.05);
 }
 
 .templateHeader {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Заголовок и, возможно, кнопка добавления */
     gap: 10px;
     margin-bottom: 12px;
 }
@@ -290,75 +353,61 @@ button {
 .templateTitle {
     display: flex;
     align-items: center;
-    gap: 8px; /* Отступ между иконкой и заголовком */
+    gap: 8px;
 }
 
 .templateTitle h3 {
-     font-size: 1.05em; /* Размер заголовка шаблона */
+     font-size: 1.05em;
      font-weight: 600;
      margin: 0;
-     color: #333;
+     color: hsl(222, 47%, 11%);
 }
 
-/* Стиль для кнопки добавления шаблона (если нужна) */
-/*
-.btnAddTemplate {
-    background-color: #dcfce7;
-    color: #16a34a;
-    border: none;
-    border-radius: 4px;
-    padding: 4px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s ease;
+.templateHeader svg {
+     color: hsl(221, 83%, 53%);
 }
 
-.btnAddTemplate:hover {
-    background-color: #bbf7d0;
-}
-*/
 
 .templateDescription {
-    font-size: 0.9em;
-    color: #6b7280;
-    margin: 0 0 16px 0; /* Отступ снизу */
-    flex-grow: 1; /* Описание занимает доступное пространство */
+    font-size: 0.95em;
+    color: hsl(215, 16%, 47%);
+    margin: 0 0 16px 0;
+    flex-grow: 1;
 }
 
 .templateActions {
     display: flex;
-    gap: 8px; /* Отступ между кнопками */
+    gap: 8px;
     flex-wrap: wrap;
-    margin-top: auto; /* Прижимает кнопки к низу карточки */
+    margin-top: auto;
 }
 
-/* Стили модальных окон (диалогов) */
+
+/* Стили модальных окон */
 .modalBackdrop {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6); /* Более темный фон */
+    background-color: hsla(0, 0%, 0%, 0.65);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
     padding: 20px;
-    overflow-y: auto; /* Добавляем прокрутку, если контент высокий */
+    overflow-y: auto;
 }
 
 .modal {
-    background-color: #fff;
-    padding: 30px; /* Увеличиваем паддинг */
-    border-radius: 12px; /* Более скругленные углы */
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* Более выраженная тень */
-    max-width: 500px; /* Увеличиваем максимальную ширину */
+    background-color: hsl(0, 0%, 100%);
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 6px 16px hsla(0, 0%, 0%, 0.08);
+    max-width: 450px;
     width: 100%;
     box-sizing: border-box;
-    position: relative; /* Для позиционирования модалки */
+    position: relative;
     opacity: 0;
     transform: translateY(-20px);
     animation: modalAppear 0.3s ease-out forwards;
@@ -371,64 +420,66 @@ button {
     }
 }
 
-
 .modalHeader {
-    margin-bottom: 25px; /* Увеличиваем отступ */
+    margin-bottom: 20px;
+    border-bottom: 1px solid hsl(214, 32%, 91%);
+    padding-bottom: 15px;
 }
 
 .modalHeader h3 {
-    font-size: 1.4em; /* Увеличиваем размер заголовка */
-    font-weight: 700; /* Более жирный шрифт */
+    font-size: 1.2em;
+    font-weight: 600;
     margin: 0;
-    color: #333;
+    color: hsl(222, 47%, 11%);
 }
 
 .modalBody {
-    margin-bottom: 25px; /* Увеличиваем отступ */
+    margin-bottom: 20px;
 }
 
 .modalBody p {
-    font-size: 1.05em;
-    color: #333;
-    margin: 0 0 20px 0; /* Увеличиваем отступ */
+    font-size: 1em;
+    color: hsl(222, 47%, 11%);
+    margin: 0 0 15px 0;
 }
 
 .modalFooter {
     display: flex;
     justify-content: flex-end;
-    gap: 10px; /* Отступ между кнопками */
+    gap: 8px;
 }
 
 .formGroup {
-    margin-bottom: 20px; /* Увеличиваем отступ */
+    margin-bottom: 15px;
 }
 
 .formLabel {
-   font-size: 0.95em;
+   font-size: 0.9em;
    font-weight: 600;
-   color: #333;
+   color: hsl(222, 47%, 11%);
    display: block;
-   margin-bottom: 8px; /* Увеличиваем отступ */
+   margin-bottom: 6px;
 }
 
 .formInput {
-   padding: 12px; /* Увеличиваем паддинг */
-   border: 1px solid #d1d5db; /* Цвет обводки */
-   border-radius: 6px; /* Скругленные углы */
+   padding: 8px 12px;
+   border: 1px solid hsl(214, 32%, 91%);
+   border-radius: 4px;
    font-size: 1em;
    width: 100%;
    box-sizing: border-box;
    font-family: inherit;
-   color: #333;
-   background-color: #fff;
+   color: hsl(222, 47%, 11%);
+   background-color: hsl(0, 0%, 100%);
+   height: 36px;
 }
 
 .formInput::placeholder {
-    color: #9ca3af; /* Цвет плейсхолдера */
+    color: hsl(215, 16%, 47%);
 }
 
 
-/* Медиа-запросы для адаптивности */
+/* Медиа-запросы */
 @media (max-width: 768px) {
     .documentsHeader {
         flex-direction: column;
@@ -446,35 +497,46 @@ button {
         width: 100%;
     }
 
-    .btnOutline {
-       width: 100%; /* Outline кнопки занимают всю ширину на маленьких экранах */
+    .filterControls {
+         width: 100%;
+         justify-content: stretch;
+    }
+
+    .filterControls .selectInput {
+         flex-grow: 1;
+    }
+
+    .btnOutline,
+    .btnPrimary {
+       width: 100%;
        justify-content: center;
     }
 
      .documentActions {
-         flex-direction: column; /* Кнопки действий в столбец */
-         gap: 10px;
+         flex-direction: column;
+         gap: 8px;
      }
 
      .documentsTable th,
      .documentsTable td {
-         padding: 10px 8px; /* Уменьшаем паддинг в таблице */
+         padding: 10px 8px;
      }
 
      .templatesGrid {
-         grid-template-columns: 1fr; /* Шаблоны в один столбец */
+         grid-template-columns: 1fr;
      }
 
      .modal {
-         padding: 20px; /* Уменьшаем паддинг модалки */
+         padding: 16px;
      }
 
       .modalHeader {
-         margin-bottom: 15px;
+         margin-bottom: 10px;
+         padding-bottom: 10px;
       }
 
      .modalBody {
-        margin-bottom: 15px;
+        margin-bottom: 10px;
      }
 
      .modalFooter {
@@ -483,7 +545,14 @@ button {
      }
 
      .modalFooter button {
-        width: 100%; /* Кнопки в модалке на всю ширину */
+        width: 100%;
         justify-content: center;
+     }
+
+     .formGroup {
+        margin-bottom: 10px;
+     }
+     .formLabel {
+        margin-bottom: 4px;
      }
 }

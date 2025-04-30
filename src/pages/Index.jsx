@@ -15,7 +15,7 @@ const Index = () => {
       <div className={styles.container}>
         <header className={styles.header}>
           <h1 className={styles.mainTitle}>
-            SmartNation College
+            SmartDocuments
           </h1>
           <p className={styles.subtitle}>
             Система управления документооборотом
@@ -29,7 +29,7 @@ const Index = () => {
             </h2>
             <div className={styles.features}>
               <p className={styles.featureIntro}>
-                SmartNation College предлагает современную систему документооборота,
+                SmartDocuments предлагает современную систему документооборота,
                 разработанную специально для учебных заведений.
               </p>
               <ul className={styles.featureList}>

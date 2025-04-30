@@ -61,7 +61,7 @@ const SidebarLayout = ({ children }) => {
         <button type="button" onClick={toggleSidebar} className={styles.menuButton}>
           <Menu className={styles.icon} />
         </button>
-        <h1 className={styles.title}>SmartNation College</h1>
+        <h1 className={styles.title}>SmartDocuments</h1>
       </div>
 
       {sidebarOpen && window.innerWidth < 1024 && (
@@ -70,7 +70,7 @@ const SidebarLayout = ({ children }) => {
 
       <div className={`${styles.sidebar} ${sidebarOpen ? styles.open : ''}`}>
         <div className={styles.sidebarHeader}>
-          <h2 className={styles.title}>SmartNation College</h2>
+          <h2 className={styles.title}>SmartDocuments</h2>
            {window.innerWidth < 1024 && (
              <button type="button" onClick={toggleSidebar} className={styles.closeButton}>
                <X className={styles.icon} />
@@ -132,7 +132,7 @@ const SidebarLayout = ({ children }) => {
                  <Menu className={styles.icon} />
                </button>
              )}
-            <h1 className={styles.title}>SmartNation College</h1>
+            <h1 className={styles.title}>SmartDocuments</h1>
           </div>
           <div className={styles.headerRight}>
              <button type="button" onClick={() => navigate('/notifications')} className={styles.notificationButton}>

@@ -19,6 +19,7 @@ import Groups from "./pages/Groups";
 import Students from "./pages/Students";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import SignatureCanvasPage from './pages/SignatureCanvasPage';
 
 // AI Assistant
 import AIAssistant from "./components/AIAssistant";
@@ -86,7 +87,14 @@ export const api = {
   // Документы
   documents: {
     getAll: (params) => axios.get('/documents', { params }),
-    getTemplates: () => axios.get('/document-templates')
+    getTemplates: () => axios.get('/document-templates'),
+    generateSignatureUrl: (docId, slotName) => axios.get(`/documents/${docId}/generate-signature-url/${slotName}`),
+  },
+
+  // Подписи
+  signatures: {
+     upload: (signatureData) => axios.post('/signatures/upload', signatureData), // Ожидает { token, imageData } JSON
+     getSignatureImage: (signatureUuid) => axios.get(`/signatures/${signatureUuid}/download`, { responseType: 'blob' }), // Если нужен маршрут для отображения подписи
   },
   
   // Группы
@@ -132,6 +140,7 @@ const App = () => {
             {/* Публичные маршруты */}
             <Route path="/login" element={<Login />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
+            <Route path="/sign" element={<SignatureCanvasPage />} /> {/* <-- ДОБАВЛЯЕМ ЗДЕСЬ */}
 
             {/* Защищённые маршруты */}
             <Route

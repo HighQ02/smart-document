@@ -19,7 +19,7 @@ const Login = () => {
     <div className={styles.loginContainer}>
       <div className={styles.loginBox}>
         <div className={styles.loginHeader}>
-          <h1>SmartNation College</h1>
+          <h1>SmartDocuments</h1>
           <p>Система управления документооборотом</p>
         </div>
 

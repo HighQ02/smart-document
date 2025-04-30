@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, Send } from 'lucide-react';
 import { useAuth } from './../contexts/AuthContext';
+import axios from 'axios';
 
 import styles from './../styles/AIAssistant.module.css';
 
@@ -8,37 +9,48 @@ const AIAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Здравствуйте! Я ваш виртуальный помощник SmartNation College. Чем могу помочь?' }
+    { role: 'assistant', content: 'Здравствуйте! Я ваш виртуальный помощент SmartNation College. Чем могу помочь?' }
   ]);
   const { user } = useAuth();
+  const messagesEndRef = useRef(null);
+  const [isSending, setIsSending] = useState(false); // Состояние отправки
 
-  const handleSendMessage = (e) => {
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+
+  const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!input.trim()) return;
-    const newMessages = [...messages, { role: 'user', content: input }];
+    const userMessage = input.trim();
+    if (!userMessage || isSending) return; // Отключаем отправку, если пусто или уже отправляем
+
+    const newMessages = [...messages, { role: 'user', content: userMessage }];
     setMessages(newMessages);
     setInput('');
-    setTimeout(() => {
-      let response = '';
-      if (input.toLowerCase().includes('документ')) {
-        if (user?.role === 'admin') {
-          response = 'В разделе "Документы" вы можете управлять всеми документами, создавать шаблоны и настраивать процессы документооборота.';
-        } else if (user?.role === 'curator') {
-          response = 'В разделе "Документы" вы можете просматривать и проверять документы студентов в ваших группах.';
-        } else {
-          response = 'В разделе "Документы" вы можете загружать необходимые документы для вашего ребенка и отслеживать их статус.';
-        }
-      } else if (input.toLowerCase().includes('расписание') || input.toLowerCase().includes('дедлайн')) {
-        response = 'Информация о сроках сдачи документов и важных датах доступна в разделе "Расписание".';
-      } else if (input.toLowerCase().includes('запрос')) {
-        response = 'Вы можете создать новый запрос в разделе "Запросы".';
-      } else if (input.toLowerCase().includes('профиль') || input.toLowerCase().includes('настройки')) {
-        response = 'Управление своим профилем и настройками доступно в разделе "Личный кабинет".';
-      } else {
-        response = 'Я могу помочь с вопросами по документам, расписанию, запросам и навигации. Уточните ваш вопрос.';
-      }
-      setMessages((prev) => [...prev, { role: 'assistant', content: response }]);
-    }, 850);
+    setIsSending(true); // Устанавливаем флаг отправки
+
+
+    try {
+        // Вызываем новый endpoint на вашем бэкенде
+        const backendApiUrl = '/api/chat-with-ai'; // Убедитесь, что путь совпадает с бэкендом
+
+        const apiResponse = await axios.post(backendApiUrl, {
+            message: userMessage // Отправляем только сообщение пользователя на бэкенд
+        });
+
+        // Ожидаем, что бэкенд вернет ответ в формате { reply: "..." }
+        const assistantResponse = apiResponse.data?.reply || 'Извините, я не смог сгенерировать ответ.';
+
+        setMessages(prevMessages => [...prevMessages, { role: 'assistant', content: assistantResponse }]);
+
+    } catch (error) {
+        console.error('Error calling backend AI proxy:', error);
+        const errorMessage = error.response?.data?.error || error.message || 'Произошла ошибка при получении ответа от AI.';
+        setMessages(prevMessages => [...prevMessages, { role: 'assistant', content: `Ошибка: ${errorMessage}` }]);
+    } finally {
+        setIsSending(false); // Сбрасываем флаг отправки после получения ответа или ошибки
+    }
   };
 
   return (
@@ -47,9 +59,9 @@ const AIAssistant = () => {
         type="button"
         onClick={() => setIsOpen(true)}
         className={styles.aiButton}
-        aria-label="AI-ассистент"
+        aria-label="Открыть AI-ассистент"
       >
-        <MessageSquare />
+        <MessageSquare size={24} />
       </button>
 
       {isOpen && (
@@ -80,6 +92,7 @@ const AIAssistant = () => {
                     </div>
                   </div>
                 ))}
+                 <div ref={messagesEndRef} />
               </div>
             </div>
             <div className={styles.chatModalFooter}>
@@ -90,9 +103,10 @@ const AIAssistant = () => {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   className={styles.chatInput}
+                  disabled={isSending} // Отключаем поле ввода во время отправки
                 />
-                <button type="submit" className={styles.sendButton}>
-                  <Send />
+                <button type="submit" className={styles.sendButton} disabled={!input.trim() || isSending}> {/* Отключаем кнопку */}
+                  <Send size={20} />
                 </button>
               </form>
             </div>
