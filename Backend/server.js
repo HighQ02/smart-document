@@ -8,13 +8,18 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const multer = require('multer');
 const FormData = require('form-data');
 const axios = require('axios');
-const path = require('path'); // Используем для работы с путями
-const qrcode = require('qrcode'); // Импорт библиотеки для QR-кодов
-const { Buffer } = require('buffer'); // Buffer доступен глобально, но импорт для ясности
+const path = require('path');
+const qrcode = require('qrcode');
+const { Buffer } = require('buffer');
 
 
 const app = express();
 const port = 7000;
+
+app.use((req, res, next) => {
+  console.log(`DEBUG: --> Received Request: ${req.method} ${req.originalUrl || req.url}`);
+  next();
+});
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
@@ -29,9 +34,15 @@ const pool = new Pool({
   port: 5432,
 });
 
-const JWT_SECRET = 'S5Eh+qExOmQm6MTIhLAzdYNOyz9Q9yPBAxy8NY2spkngDTQN189473Br0M134B7f8C6TTYcOhRovTbijiQDiLkkRQXZb2e+Q7nFMFuX+ybOwW6xbQoHMqmQ0zXgVI5owIqDXBhP2bWyeqoKdQA7uLqi8BQFs4SgZ6dU/BuH95xCHo0E/01PZ5+Oz+i3vnkNk0Oo86Q0X+Ow31i+saVTbZKsU/bizpvcR/C5SImW/Tby//kcTrDT2bbhdWRmHrMZe9RgCBUSgMoq/fehyP9w5tKCeJnM1L7thk9vSNJYykPVWbjU+lHcBsZZB1G4furxpCsZKeSHeboH6jbJ1X96IKA==';
-const FRONTEND_BASE_URL = 'http://172.20.10.3:3000';
-const FASTAPI_STORAGE_URL = 'http://172.20.10.3:8000/api/v1';
+// Добавьте проверку, что JWT_SECRET загружен
+const JWT_SECRET = process.env.JWT_SECRET || 'S5Eh+qExOmQm6MTIhLAzdYNOyz9Q9yPBAxy8NY2spkngDTQN189473Br0M134B7f8C6TTYcOhRovTbijiQDiLkkRQXZb2e+Q7nFMFuX+ybOwW6xbQoHMqmQ0zXgVI5owIqDXBhP2bWyeqoKdQA7uLqi8BQFs4SgZ6dU/BuH95xCHo0E/01PZ5+Oz+i3vnkNk0Oo86Q0X+Ow31i+saVTbZKsU/bizpvcR/C5SImW/Tby//kcTrDT2bbhdWRmHrMZe9RgCBUSgMoq/fehyP9w5tKCeJnM1L7thk9vSNJYykPVWbjU+lHcBsZZB1G4furxpCsZKeSHeboH6jbJ1X96IKA==';
+if (JWT_SECRET === 'S5Eh+qExOmQm6MTIhLAzdYNOyz9Q9yPBAxy8NY2spkngDTQN189473Br0M134B7f8C6TTYcOhRovTbijiQDiLkkRQXZb2e+Q7nFMFuX+ybOwW6xbQoHMqmQ0zXgVI5owIqDXBhP2bWyeqoKdQA7uLqi8BQFs4SgZ6dU/BuH95xCHo0E/01PZ5+Oz+i3vnkNk0Oo86Q0X+Ow31i+saVTbZKsU/bizpvcR/C5SImW/Tby//kcTrDT2bbhdWRmHrMZe9RgCBUSgMoq/fehyP9w5tKCeJnM1L7thk9vSNJYykPVWbjU+lHcBsZZB1G4furxpCsZKeSHeboH6jbJ1X96IKA==') {
+    console.warn("WARNING: JWT_SECRET is using a default placeholder. Please set JWT_SECRET in your .env file for production!");
+}
+
+// Убедитесь, что эти URL загружаются из .env или конфигурации
+const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL || 'http://192.168.0.104:3000';
+const FASTAPI_STORAGE_URL = process.env.FASTAPI_STORAGE_URL || 'http://192.168.0.104:8000/api/v1';
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -45,6 +56,7 @@ const authenticateToken = (req, res, next) => {
     if (err) {
       return res.status(403).json({ message: 'Недействительный или истекший токен' });
     }
+    // payload токена доступен в req.user
     req.user = user;
     next();
   });
@@ -84,7 +96,8 @@ app.post('/api/auth/login', async (req, res) => {
       {
         id: user.id,
         email: user.email,
-        role: user.role
+        role: user.role,
+        full_name: user.full_name // Добавляем full_name в токен для удобства
       },
       JWT_SECRET,
       { expiresIn: '24h' }
@@ -142,8 +155,6 @@ app.get('/api/users/me', authenticateToken, async (req, res) => {
     const user = result.rows[0];
 
     if (!user) {
-      // This case should ideally not happen if authenticateToken is correct,
-      // but good for robustness.
       return res.status(404).json({ message: 'Пользователь не найден' });
     }
 
@@ -165,42 +176,34 @@ app.get('/api/users/me', authenticateToken, async (req, res) => {
 });
 
 // --- Маршруты Пользователей ---
-// Исправленный маршрут GET /api/users
 app.get('/api/users', authenticateToken, async (req, res) => {
   try {
-    // Проверяем права доступа - просматривать список пользователей могут админ и куратор
     if (!['admin', 'curator'].includes(req.user.role)) {
       return res.status(403).json({ message: 'Недостаточно прав для выполнения операции' });
     }
 
     const { role, curator_id } = req.query;
     let query = 'SELECT id, full_name, email, role, phone, avatar_url, is_active FROM users';
-    const params = []; // Параметры для SQL запроса
-    const conditions = []; // Условия для части WHERE
+    const params = [];
+    const conditions = [];
 
-    // Добавляем условие по роли, если указано
     if (role) {
       conditions.push('role = $' + (conditions.length + 1));
       params.push(role);
     }
 
-    // Если запрашивают студентов и указан curator_id
     if (role === 'student' && curator_id) {
-        // Проверка прав: Куратор может запрашивать только своих студентов, Админ - студентов любого куратора
         if (req.user.role === 'curator' && req.user.id.toString() !== curator_id.toString()) {
              return res.status(403).json({ message: 'Недостаточно прав для запроса студентов других кураторов' });
         }
-        // Добавляем условие: ID студента должен быть в группе, которую курирует curator_id
         conditions.push('id IN (SELECT student_id FROM student_groups sg JOIN groups g ON sg.group_id = g.id WHERE g.curator_id = $' + (conditions.length + 1) + ')');
         params.push(curator_id);
     }
 
-    // Если есть условия, формируем WHERE часть запроса
     if (conditions.length > 0) {
         query += ' WHERE ' + conditions.join(' AND ');
     }
 
-    // Добавляем сортировку
     query += ' ORDER BY full_name';
 
     const result = await pool.query(query, params);
@@ -212,7 +215,6 @@ app.get('/api/users', authenticateToken, async (req, res) => {
 });
 
 
-// API для получения студентов в группе (для куратора/админа)
 app.get('/api/groups/:groupId/students', authenticateToken, async (req, res) => {
   try {
     const { groupId } = req.params;
@@ -246,7 +248,6 @@ app.get('/api/groups/:groupId/students', authenticateToken, async (req, res) => 
   }
 });
 
-// API для родителя - получения списка своих детей
 app.get('/api/parent/students', authenticateToken, async (req, res) => {
   try {
     if (req.user.role !== 'parent') {
@@ -259,7 +260,7 @@ app.get('/api/parent/students', authenticateToken, async (req, res) => {
               ps.relationship
        FROM users u
        JOIN parent_students ps ON u.id = ps.student_id
-       LEFT JOIN student_groups sg ON u.id = sg.student_id
+       LEFT JOIN student_groups sg ON u.id = sg.student_id AND sg.is_active = true
        LEFT JOIN groups g ON sg.group_id = g.id
        WHERE ps.parent_id = $1
        ORDER BY u.full_name`,
@@ -279,7 +280,7 @@ app.get('/api/documents', authenticateToken, async (req, res) => {
     const { status, studentId, limit, offset } = req.query;
     let query = `
       SELECT d.id, d.title, d.status, d.created_at, d.updated_at, d.file_url,
-             d.original_filename, d.content_type, -- Добавлено
+             d.original_filename, d.content_type,
              u1.full_name as student_name, u1.id as student_id,
              u2.full_name as submitted_by_name,
              g.name as group_name,
@@ -367,15 +368,15 @@ app.get('/api/documents', authenticateToken, async (req, res) => {
 
     const formattedDocuments = documentsResult.rows.map((doc) => ({
         id: doc.id,
-        name: doc.title || doc.original_filename || 'Без названия', // Используем original_filename если нет title
-        type: doc.content_type ? doc.content_type.split('/')[1].toUpperCase() : (doc.original_filename ? path.extname(doc.original_filename).slice(1).toUpperCase() || 'Файл' : 'Файл'), // Определяем тип из content_type или расширения original_filename
+        name: doc.title || doc.original_filename || 'Без названия',
+        type: doc.content_type ? doc.content_type.split('/')[1].toUpperCase() : (doc.original_filename ? path.extname(doc.original_filename).slice(1).toUpperCase() || 'Файл' : 'Файл'),
         status: doc.status,
         date: doc.created_at ? new Date(doc.created_at).toLocaleDateString('ru-RU') : 'Дата неизвестна',
         student_id: doc.student_id,
         student_name: doc.student_name || 'Неизвестно',
         file_url: doc.file_url,
-        original_filename: doc.original_filename, // Включаем для фронтенда, если нужно
-        content_type: doc.content_type, // Включаем для фронтенда, если нужно
+        original_filename: doc.original_filename,
+        content_type: doc.content_type,
         group_name: doc.group_name,
         template_name: doc.template_name,
         submitted_by_name: doc.submitted_by_name,
@@ -394,7 +395,6 @@ app.get('/api/documents', authenticateToken, async (req, res) => {
 });
 
 
-// --- Маршрут для обновления статуса документа (Одобрить, Отклонить, Архивировать) ---
 app.put('/api/documents/:id/status', authenticateToken, async (req, res) => {
     const documentId = req.params.id;
     const { status, review_comment } = req.body;
@@ -405,7 +405,7 @@ app.put('/api/documents/:id/status', authenticateToken, async (req, res) => {
         return res.status(403).json({ message: 'Недостаточно прав для изменения статуса документа' });
     }
 
-    const validStatuses = ['pending', 'approved', 'rejected', 'archived', 'new', 'draft', 'submitted']; // Добавим все возможные статусы
+    const validStatuses = ['pending', 'approved', 'rejected', 'archived', 'new', 'draft', 'submitted'];
     if (!validStatuses.includes(status)) {
         return res.status(400).json({ message: 'Недопустимый статус документа' });
     }
@@ -462,6 +462,24 @@ app.put('/api/documents/:id/status', authenticateToken, async (req, res) => {
             return res.status(404).json({ message: 'Документ не найден' });
         }
 
+        // TODO: Добавить логику создания уведомления при изменении статуса документа.
+        // Например, уведомить студента и родителя, если статус стал 'approved' или 'rejected'.
+        // Пример:
+        // if (status === 'approved' || status === 'rejected') {
+        //      const docOwnerResult = await pool.query('SELECT student_id FROM documents WHERE id = $1', [documentId]);
+        //      const studentId = docOwnerResult.rows[0]?.student_id;
+        //      if (studentId) {
+        //          // Найти родителей студента
+        //          const parentIdsResult = await pool.query('SELECT parent_id FROM parent_students WHERE student_id = $1', [studentId]);
+        //          const recipientUserIds = [studentId, ...parentIdsResult.rows.map(row => row.parent_id)];
+        //          const notificationTitle = `Документ "${document.title}" ${status === 'approved' ? 'одобрен' : 'отклонен'}`;
+        //          const notificationMessage = review_comment ? `Комментарий: ${review_comment}` : '';
+        //          // Вызвать функцию создания уведомлений для recipientUserIds
+        //          // await createNotificationsForUsers(recipientUserIds, notificationTitle, notificationMessage, 'document', documentId);
+        //      }
+        // }
+
+
         res.status(200).json({ message: `Статус документа успешно обновлен на "${status}"` });
 
     } catch (error) {
@@ -471,15 +489,13 @@ app.put('/api/documents/:id/status', authenticateToken, async (req, res) => {
 });
 
 
-// --- Маршрут для скачивания документа ---
 app.get('/api/documents/:id/download', authenticateToken, async (req, res) => {
     const documentId = req.params.id;
     const userId = req.user.id;
     const userRole = req.user.role;
-    const fastapiServiceUrl = 'http://127.0.0.1:8000/api/v1/open_file/'; // URL FastAPI сервиса
+    const fastapiServiceUrl = `${FASTAPI_STORAGE_URL}/open_file/`;
 
     try {
-        // 1. Получить информацию о документе из БД (UUID, original_filename, content_type)
         const docResult = await pool.query(
             'SELECT id, title, file_url, student_id, original_filename, content_type FROM documents WHERE id = $1',
             [documentId]
@@ -496,11 +512,10 @@ app.get('/api/documents/:id/download', authenticateToken, async (req, res) => {
         }
 
         const fileUuid = document.file_url;
-        const originalFilename = document.original_filename || 'document'; // Получаем оригинальное имя из БД
-        const contentType = document.content_type || 'application/octet-stream'; // Получаем тип из БД
+        const originalFilename = document.original_filename || 'document';
+        const contentType = document.content_type || 'application/octet-stream';
 
 
-        // 2. Проверка прав доступа к скачиванию (логика остается такой же)
         let isAuthorized = false;
         if (['admin', 'curator'].includes(userRole)) {
             isAuthorized = true;
@@ -521,21 +536,14 @@ app.get('/api/documents/:id/download', authenticateToken, async (req, res) => {
         }
 
 
-        // 3. Запросить только байты файла из FastAPI сервиса по UUID
         try {
             const fastapiResponse = await axios.get(`${fastapiServiceUrl}?pdf_uuid=${fileUuid}`, {
-                responseType: 'stream', // Получаем данные в виде потока
-                // ВАЖНО: Не ожидаем от FastAPI заголовков Content-Type/Content-Disposition
-                // Мы установим их сами на основе данных из нашей БД
+                responseType: 'stream',
             });
 
-            // 4. Установить ЗАГОЛОВКИ ДЛЯ ОТВЕТА Node.js, используя метаданные из нашей БД
-            res.setHeader('Content-Type', contentType); // Используем тип из нашей БД
-            // Устанавливаем имя файла для скачивания, используя имя из нашей БД
+            res.setHeader('Content-Type', contentType);
             res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(originalFilename)}"`);
 
-
-            // 5. Перенаправить поток данных из FastAPI в ответ Node.js
             fastapiResponse.data.pipe(res);
 
         } catch (fastapiError) {
@@ -544,11 +552,9 @@ app.get('/api/documents/:id/download', authenticateToken, async (req, res) => {
                  if (fastapiError.response.status === 404) {
                     return res.status(404).json({ message: 'Файл не найден во внешнем хранилище.' });
                 }
-                 // Логируем другие ошибки от FastAPI
                  console.error('FastAPI response status:', fastapiError.response.status);
                  console.error('FastAPI response data:', fastapiError.response.data);
             } else {
-                // Логируем ошибки, не связанные с ответом (например, ошибка сети)
                 console.error('FastAPI request error:', fastapiError.request);
             }
             res.status(500).json({ message: 'Ошибка при получении файла из хранилища.' });
@@ -561,11 +567,10 @@ app.get('/api/documents/:id/download', authenticateToken, async (req, res) => {
 });
 
 
-
 app.get('/api/document-templates', authenticateToken, async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT id, name, description, template_fields, required_signatures
+      `SELECT id, name, description, template_fields, required_signatures, html_template
        FROM document_templates
        WHERE is_active = true
        ORDER BY name`
@@ -587,6 +592,10 @@ app.post('/api/documents', authenticateToken, async (req, res) => {
          return res.status(403).json({ message: 'Недостаточно прав для создания документа от имени другого пользователя' });
      }
 
+    if (!file_url && !template_id && !req.body.uploaded_file_details) {
+         return res.status(400).json({ message: 'Для создания документа требуется либо URL файла, либо данные загруженного файла, либо шаблон.' });
+    }
+
     const result = await pool.query(
       `INSERT INTO documents
        (title, template_id, content, status, student_id, group_id, file_url, submitted_by)
@@ -602,18 +611,19 @@ app.post('/api/documents', authenticateToken, async (req, res) => {
     });
   } catch (error) {
     console.error('Create document error:', error);
-    res.status(500).json({ message: 'Ошибка при создании документа' });
+    if (error.code === '23503') {
+        return res.status(400).json({ message: 'Указаны неверные данные студента или шаблона.' });
+    }
+    res.status(500).json({ message: 'Ошибка при создании документа.' });
   }
 });
 
 
 
-// --- Новый маршрут API для загрузки документов через внешний сервис ---
-// Принимает файл от фронтенда и перенаправляет его в FastAPI сервис хранения
 app.post('/api/documents/upload', authenticateToken, upload.single('document'), async (req, res) => {
   try {
       const uploadedFile = req.file;
-      const { name, student_id, status, submitted_by } = req.body;
+      const { name, student_id, status, submitted_by, template_id, content } = req.body;
 
       if (!uploadedFile || !student_id || !submitted_by) {
           return res.status(400).json({ message: 'Файл, студент и загрузивший пользователь обязательны для загрузки' });
@@ -656,93 +666,96 @@ app.post('/api/documents/upload', authenticateToken, upload.single('document'), 
            return res.status(403).json({ message: 'Недостаточно прав для загрузки документа от имени другого пользователя' });
       }
 
-      // --- Перенаправление файла в FastAPI сервис ---
-      const fastapiServiceUrl = 'http://127.0.0.1:8000/api/v1/upload_pdf/';
-      const formData = new FormData();
 
-      formData.append('file', uploadedFile.buffer, uploadedFile.originalname);
-      // Можно убрать student_id и uploaded_by из formData, если FastAPI ими не пользуется для сохранения файла
-      // formData.append('student_id', student_id);
-      // formData.append('uploaded_by', submitted_by);
+      const fastapiServiceUrl = `${FASTAPI_STORAGE_URL}/upload_pdf/`;
+      const formDataFastAPI = new FormData();
+
+      formDataFastAPI.append('file', uploadedFile.buffer, uploadedFile.originalname);
 
       try {
-          // Отправляем файл в FastAPI
-          const fastapiResponse = await axios.post(fastapiServiceUrl, formData, {
+          const fastapiResponse = await axios.post(fastapiServiceUrl, formDataFastAPI, {
               headers: {
-                   ...formData.getHeaders()
-                   // Возможно, нужно удалить Content-Length или позволить axios его установить
-                   // https://github.com/axios/axios/issues/1008
-                   // 'Content-Length': undefined
+                   ...formDataFastAPI.getHeaders()
               },
               maxContentLength: Infinity,
               maxBodyLength: Infinity,
+              timeout: 60000
           });
 
           const fileUuid = fastapiResponse.data?.uuid;
 
           if (!fileUuid) {
+               console.error('FastAPI did not return file UUID:', fastapiResponse.data);
                if (fastapiResponse.status >= 400) {
                     const fastapiErrorMessage = fastapiResponse.data?.detail || `Сервис хранения вернул ошибку ${fastapiResponse.status}`;
                     return res.status(fastapiResponse.status).json({ message: `Ошибка сервиса хранения: ${fastapiErrorMessage}` });
                }
               return res.status(500).json({ message: 'Сервис хранения не вернул идентификатор файла.' });
           }
+           console.log(`File uploaded to FastAPI, UUID: ${fileUuid}`);
 
-          // --- Сохранение метаданных документа (включая оригинальное имя и тип) в PostgreSQL ---
-          // Находим группу студента, если есть
+
            const groupResult = await pool.query(
               'SELECT group_id FROM student_groups WHERE student_id = $1 AND is_active = true',
               [student_id]
            );
            const group_id = groupResult.rows[0]?.group_id || null;
 
-           const initialStatus = status || 'pending'; // Используем статус из тела запроса или 'pending'
+           const initialStatus = status || 'pending';
 
-           // **ВАЖНО:** Сохраняем originalname и mimetype в БД
+
           const result = await pool.query(
             `INSERT INTO documents
-             (title, status, student_id, group_id, file_url, submitted_by, original_filename, content_type)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+             (title, status, student_id, group_id, file_url, submitted_by, original_filename, content_type, template_id, content)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
              RETURNING id, created_at`,
-            [name || uploadedFile.originalname, initialStatus, student_id, group_id, fileUuid, submitted_by, uploadedFile.originalname, uploadedFile.mimetype]
+            [
+                name || uploadedFile.originalname,
+                initialStatus,
+                student_id,
+                group_id,
+                fileUuid,
+                submitted_by,
+                uploadedFile.originalname,
+                uploadedFile.mimetype,
+                template_id || null,
+                content || null
+            ]
           );
+
+          console.log(`Document entry created in DB with ID: ${result.rows[0].id}`);
 
           res.status(201).json({
             message: 'Документ успешно загружен и зарегистрирован',
             documentId: result.rows[0].id,
             createdAt: result.rows[0].created_at,
-            fileUuid: fileUuid // UUID файла в хранилище
+            fileUuid: fileUuid
           });
 
       } catch (fastapiError) {
-          console.error('Error forwarding file to FastAPI service:', fastapiError.message);
+          console.error('Error forwarding file to FastAPI service or creating DB entry:', fastapiError);
           if (fastapiError.response) {
              const fastapiErrorMessage = fastapiError.response.data?.detail || `Сервис хранения вернул ошибку ${fastapiError.response.status}`;
              return res.status(fastapiError.response.status >= 400 ? fastapiError.response.status : 500).json({ message: `Ошибка сервиса хранения: ${fastapiErrorMessage}` });
+          } else if (fastapiError.request) {
+              console.error('FastAPI request error:', fastapiError.request);
+               return res.status(500).json({ message: `Ошибка связи с сервисом хранения: ${fastapiError.message}` });
           }
-          res.status(500).json({ message: `Ошибка связи с сервисом хранения: ${fastapiError.message}` });
-      }
+          res.status(500).json({ message: `Ошибка сервера при обработке загрузки документа: ${fastapiError.message}` });
 
+      }
   } catch (error) {
-    console.error('Upload document (Node.js handler) error:', error);
+    console.error('Upload document (Node.js handler) initial error:', error);
     res.status(500).json({ message: 'Ошибка сервера при загрузке документа.' });
   }
 });
 
 
-// --- Маршруты Запросов (предполагается, что запросы - это тоже тип документов или отдельная сущность) ---
-// Если запросы - это отдельная сущность, эти маршруты остаются как есть.
-// Если "запросы" будут реализованы как документы с определенным template_id или типом,
-// то эти маршруты могут быть переработаны или удалены в пользу маршрутов /api/documents.
-// Например, запрос может быть документом с template_id = 'request' и статусом 'new'.
-// Текущая реализация предполагает отдельную таблицу 'requests'.
-
+// --- Маршруты Запросов ---
 app.post('/api/requests', authenticateToken, async (req, res) => {
   try {
-    const { title, description, type, status, urgency, student_id, document_id, assigned_to } = req.body; // created_by берем из токена
+    const { title, description, type, status, urgency, student_id, document_id, assigned_to } = req.body;
 
-     // Проверка прав: кто может создавать запросы?
-     // Например: студент для себя, родитель для своего ребенка, куратор для своих групп, админ.
      let canCreate = false;
      if (req.user.role === 'admin') {
          canCreate = true;
@@ -778,7 +791,7 @@ app.post('/api/requests', authenticateToken, async (req, res) => {
        (title, description, type, status, urgency, student_id, document_id, assigned_to, created_by)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        RETURNING id`,
-      [title, description, type, status || 'new', urgency || 'normal', student_id, document_id, assigned_to, req.user.id] // Устанавливаем created_by из токена
+      [title, description, type, status || 'new', urgency || 'normal', student_id, document_id, assigned_to, req.user.id]
     );
 
     res.status(201).json({
@@ -817,29 +830,21 @@ app.get('/api/requests', authenticateToken, async (req, res) => {
       paramIndex++;
     }
 
-    // Фильтрация по ролям
     if (req.user.role === 'student') {
-        // Студент видит только свои запросы
         query += ` AND r.student_id = $${paramIndex}`;
         params.push(req.user.id);
         paramIndex++;
     } else if (req.user.role === 'parent') {
-         // Родитель видит запросы своих детей
          query += ` AND r.student_id IN (SELECT student_id FROM parent_students WHERE parent_id = $${paramIndex})`;
          params.push(req.user.id);
          paramIndex++;
     } else if (req.user.role === 'curator') {
-         // Куратор видит запросы студентов своих групп И запросы, назначенные ему
          query += ` AND (r.student_id IN (SELECT sg.student_id FROM student_groups sg JOIN groups g ON sg.group_id = g.id WHERE g.curator_id = $${paramIndex}) OR r.assigned_to = $${paramIndex})`;
          params.push(req.user.id, req.user.id);
-         paramIndex += 2; // Использовали два параметра
+         paramIndex += 2;
     }
-    // Админ видит все запросы (без фильтрации по роли)
 
-    // Если studentId указан (и пользователь имеет права его использовать, проверено выше)
-    if (studentId && ['admin', 'curator', 'parent'].includes(req.user.role)) { // Добавляем parent сюда, т.к. он может смотреть запросы только своих детей
-         // Если роль куратора уже добавила условие по студентам своей группы, это условие может быть избыточным,
-         // но для простоты оставим его, оно сработает как дополнительный фильтр.
+    if (studentId && ['admin', 'curator', 'parent'].includes(req.user.role)) {
          query += ` AND r.student_id = $${paramIndex}`;
          params.push(studentId);
          paramIndex++;
@@ -859,16 +864,16 @@ app.get('/api/requests', authenticateToken, async (req, res) => {
 
 // --- Маршруты AI Ассистента ---
 
-// Убедитесь, что API ключ правильно загружается из .env
-const GOOGLE_AI_API_KEY = 'AIzaSyBChhrfQTXMPXYNLRmmlZnRJaJkWgvARD4'; // Читаем из .env
+const GOOGLE_AI_API_KEY = process.env.GOOGLE_AI_API_KEY || 'AIzaSyBChhrfQTXMPXYNLRmmlZnRJaJkWgvARD4';
 
-if (!GOOGLE_AI_API_KEY) {
-  console.error("FATAL ERROR: GOOGLE_AI_API_KEY is not defined in environment variables.");
+if (!GOOGLE_AI_API_KEY || GOOGLE_AI_API_KEY === 'AIzaSyBChhrfQTXMPXYNLRmmlZnRJaJkWgvARD4') {
+  console.warn("WARNING: GOOGLE_AI_API_KEY is missing or using a default placeholder. AI functionality may not work.");
 }
 
-const genAI = GOOGLE_AI_API_KEY ? new GoogleGenerativeAI(GOOGLE_AI_API_KEY) : null;
+const genAI = GOOGLE_AI_API_KEY && GOOGLE_AI_API_KEY !== 'AIzaSyBChhrfQTXMPXYNLRmmlZnRJaJkWgvARD4' ? new GoogleGenerativeAI(GOOGLE_AI_API_KEY) : null;
 
-app.post('/api/chat-with-ai', authenticateToken, async (req, res) => { // Добавим authenticateToken, если чат доступен только авторизованным
+
+app.post('/api/chat-with-ai', authenticateToken, async (req, res) => {
   try {
     const userMessage = req.body.message;
 
@@ -877,28 +882,16 @@ app.post('/api/chat-with-ai', authenticateToken, async (req, res) => { // Доб
     }
 
     if (!genAI) {
-         console.error("Google Generative AI not initialized due to missing API key.");
+         console.error("Google Generative AI not initialized due to missing or default API key.");
          return res.status(500).json({ error: 'AI service is not available (missing API key)' });
     }
 
-    // Можно добавить проверку роли, если AI ассистент не для всех
-    // if (!['admin', 'curator', 'student', 'parent'].includes(req.user.role)) {
-    //      return res.status(403).json({ message: 'Ваша роль не позволяет использовать AI ассистента.' });
-    // }
-
-
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    // Опционально: можно добавить системную инструкцию для AI,
-    // чтобы он вел себя как ассистент колледжа.
-    // const chat = model.startChat({ history: /*... история чата ...*/ });
-    // const result = await chat.sendMessage(userMessage);
 
     const result = await model.generateContent(userMessage);
     const response = await result.response;
     const text = response.text();
-
-    // TODO: Сохранение истории чата в БД, если требуется
 
     res.json({ reply: text });
 
@@ -917,7 +910,7 @@ app.post('/api/chat-with-ai', authenticateToken, async (req, res) => { // Доб
 app.get('/api/document-templates', authenticateToken, async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT id, name, description, template_fields, required_signatures
+      `SELECT id, name, description, template_fields, required_signatures, html_template
        FROM document_templates
        WHERE is_active = true
        ORDER BY name`
@@ -933,112 +926,105 @@ app.get('/api/document-templates', authenticateToken, async (req, res) => {
 
 // --- Маршруты Подписей (QR-код) ---
 
-// Маршрут для генерации URL/токена для страницы подписи
-// authenticateToken: Требует, чтобы пользователь был авторизован для запроса QR.
 app.get('/api/documents/:documentId/generate-signature-url/:slotName', authenticateToken, async (req, res) => {
   const { documentId, slotName } = req.params;
-  const userId = req.user.id; // Пользователь, который запрашивает QR
-  const userRole = req.user.role; // Роль пользователя, который запрашивает QR
+  const userId = req.user.id;
+  const userRole = req.user.role;
 
   try {
       const docResult = await pool.query(
-          'SELECT d.id, d.template_id, dt.required_signatures, d.student_id, dt.name as template_name FROM documents d LEFT JOIN document_templates dt ON d.template_id = dt.id WHERE d.id = $1',
+          'SELECT d.id, d.template_id, d.student_id FROM documents d WHERE d.id = $1',
           [documentId]
       );
       const document = docResult.rows[0];
-      if (!document) { return res.status(404).json({ message: 'Документ или шаблон не найден' }); }
-      const requiredSignatures = document.required_signatures;
-      const requestedSlotExistsInTemplate = requiredSignatures && Array.isArray(requiredSignatures) && requiredSignatures.some(sig => sig.role === slotName);
-      if (!requestedSlotExistsInTemplate) { return res.status(400).json({ message: `Слот подписи "${slotName}" не найден в шаблоне документа.` }); }
+      if (!document) {
+          return res.status(404).json({ message: 'Документ не найден' });
+      }
 
-      // 2. Проверка прав пользователя на генерацию ссылки для ЭТОГО слота ЭТОГО документа
-      let canGenerate = false;
+      if (!document.template_id) {
+          return res.status(400).json({ message: `Документ ID ${documentId} не связан с шаблоном. Невозможно сгенерировать ссылку подписи.` });
+      }
+
+      const templateResult = await pool.query(
+          'SELECT required_signatures, name as template_name FROM document_templates WHERE id = $1',
+          [document.template_id]
+      );
+      const template = templateResult.rows[0];
+
+      const requiredSignatures = template.required_signatures;
+       const requestedSlotExistsInTemplate = requiredSignatures && Array.isArray(requiredSignatures) && requiredSignatures.some(sig => {
+           return sig.role === slotName;
+       });
+       if (!requestedSlotExistsInTemplate) {
+           return res.status(400).json({ message: `Слот подписи "${slotName}" не найден в шаблоне документа.` });
+       }
+
+      let userCanGenerate = false;
       const digitalSignerRoles = ['admin', 'curator', 'dean'];
       const isRequestedSlotDigital = digitalSignerRoles.includes(slotName);
 
       if (isRequestedSlotDigital) {
-           if (userRole === 'admin') { canGenerate = true; }
-           else if (userRole === slotName) { // Если роль пользователя совпадает с именем запрашиваемого слота
-               if (userRole === 'curator') { // Для куратора дополнительно проверяем группу
-                   const curatorCheck = await pool.query(`SELECT 1 FROM student_groups sg JOIN groups g ON sg.group_id = g.id WHERE sg.student_id = $1 AND g.curator_id = $2`, [document.student_id, userId]);
-                   if (curatorCheck.rows.length > 0) canGenerate = true;
-               } else { canGenerate = true; }
+           const isAdminGenerating = (userRole === 'admin');
+           if (isAdminGenerating) {
+                userCanGenerate = true;
+           } else {
+               let isRoleMatchingGenerating = false;
+               if (userRole === slotName) {
+                   if (userRole === 'curator') {
+                       const curatorCheck = await pool.query(`SELECT 1 FROM student_groups sg JOIN groups g ON sg.group_id = g.id WHERE sg.student_id = $1 AND g.curator_id = $2`, [document.student_id, userId]);
+                       isRoleMatchingGenerating = curatorCheck.rows.length > 0;
+                   } else {
+                       isRoleMatchingGenerating = true;
+                   }
+
+                   if (isRoleMatchingGenerating) {
+                        userCanGenerate = true;
+                   }
+               }
            }
       }
 
-       if (!canGenerate) { return res.status(403).json({ message: `Недостаточно прав для генерации ссылки на подпись для слота "${slotName}".` }); }
+   if (!userCanGenerate) {
+       return res.status(403).json({ message: `Недостаточно прав для генерации ссылки на подпись для слота "${slotName}".` });
+   }
 
-       // 3. Проверка, не подписан ли уже этот слот
-       const existingSignature = await pool.query(
-           'SELECT id FROM document_signatures WHERE document_id = $1 AND signature_slot_name = $2',
-           [documentId, slotName]
-       );
-       if (existingSignature.rows.length > 0) { return res.status(400).json({ message: `Слот подписи "${slotName}" для этого документа уже подписан.` }); }
+   const existingSignature = await pool.query(
+       'SELECT id FROM document_signatures WHERE document_id = $1 AND signature_slot_name = $2',
+       [documentId, slotName]
+   );
+   if (existingSignature.rows.length > 0) {
+       return res.status(400).json({ message: `Слот подписи "${slotName}" для этого документа уже был подписан.` });
+   }
 
-      // 4. Генерируем токен
-      // Токен содержит данные для страницы подписи
-      const payload = {
-          docId: documentId,
-          slot: slotName,
-          // signerUserId: userId, // ID пользователя, который ГЕНЕРИРУЕТ ссылку (Предполагается, он же и подпишет)
-          // signerName: req.user.name, // Имя пользователя, который ГЕНЕРИРУЕТ
-          // Передаем информацию о том, кто ДОЛЖЕН подписать, из БД users по signerUserId
-          // Это будет определено на стороне SignatureCanvasPage после валидации токена на бэкенде (см. validate-signature-token)
-      };
+   const signerNameFromDb = req.user.full_name || req.user.name;
+   const tokenPayload = {
+        docId: documentId,
+        slot: slotName,
+        signerUserId: userId,
+        signerName: signerNameFromDb,
+        documentTitle: template.template_name || 'Документ',
+   };
 
-      // Получаем имя подписанта из БД users для signerUserId, который инициировал QR
-      let signerNameFromDb = req.user.name; // По умолчанию имя текущего пользователя
-      try {
-          const signerUserResult = await pool.query('SELECT full_name FROM users WHERE id = $1', [userId]);
-          if(signerUserResult.rows.length > 0) {
-              signerNameFromDb = signerUserResult.rows[0].full_name;
-          }
-      } catch(nameError) {
-           console.error('Error fetching signer name for token payload:', nameError);
-      }
+   const token = jwt.sign(tokenPayload, JWT_SECRET);
+   const signaturePageUrl = `${FRONTEND_BASE_URL}/sign?token=${token}`;
+
+   res.json({ signatureUrl: signaturePageUrl });
 
 
-      const tokenPayload = {
-           docId: documentId,
-           slot: slotName,
-           signerUserId: userId, // Передаем ID пользователя, который ГЕНЕРИРУЕТ QR
-           signerName: signerNameFromDb, // Передаем имя пользователя, который ГЕНЕРИРУЕТ
-           documentTitle: document.template_name || 'Документ', // Передаем название шаблона/документа
-      };
-
-
-      const token = jwt.sign(tokenPayload, JWT_SECRET); //, { expiresIn: '3h' });
-
-      console.log("DEBUG: JWT_SECRET used for SIGNING:", JWT_SECRET);
-
-      // TODO: Надежное управление токенами в БД: сохранение, проверка использования, инвалидация.
-      // CREATE TABLE signature_tokens (token VARCHAR(255) PRIMARY KEY, document_id INTEGER REFERENCES documents(id) ON DELETE CASCADE, signature_slot_name VARCHAR(100), signer_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL, expires_at TIMESTAMP WITH TIME ZONE, is_used BOOLEAN DEFAULT FALSE, created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP);
-      // INSERT INTO signature_tokens (token, document_id, signature_slot_name, signer_user_id, expires_at) VALUES ($1, $2, $3, $4, NOW() + INTERVAL '3 hour')
-      // При получении подписи: SELECT ... WHERE token = $1 AND expires_at > NOW() AND is_used = FALSE; UPDATE ... SET is_used = TRUE;
-
-
-      // 5. Формируем URL страницы подписи на фронтенде
-      const signaturePageUrl = `${FRONTEND_BASE_URL}/sign?token=${token}`;
-
-      res.json({ signatureUrl: signaturePageUrl });
-
-  } catch (error) { console.error('Error generating signature URL:', error); res.status(500).json({ message: 'Ошибка при генерации ссылки для подписи.' }); }
+  } catch (error) {
+      console.error('Error generating signature URL:', error);
+      res.status(500).json({ message: 'Ошибка при генерации ссылки для подписи.' });
+  }
 });
 
 
-// Маршрут для получения данных о документе/подписанте по токену подписи (для SignatureCanvasPage)
-// Не требует авторизации в основной системе.
 app.get('/api/signatures/validate-token', async (req, res) => {
   const token = req.query.token;
 
   if (!token) { return res.status(400).json({ message: 'Отсутствует токен подписи.' }); }
 
   try {
-      console.log("DEBUG: JWT_SECRET used for VALIDATING (validate-token):", JWT_SECRET);
       const decodedPayload = jwt.verify(token, JWT_SECRET);
-
-      // TODO: Проверка токена в БД (signature_tokens): существует, не просрочен, не использован
-      // Это критически важно для безопасности.
 
       const { docId, slot, signerUserId } = decodedPayload;
 
@@ -1052,11 +1038,12 @@ app.get('/api/signatures/validate-token', async (req, res) => {
       const slotExistsInTemplate = requiredSignatures && Array.isArray(requiredSignatures) && requiredSignatures.some(sig => sig.role === slot);
       if (!slotExistsInTemplate) { throw new Error(`Slot "${slot}" not found in document template.`); }
 
-       let signerName = 'Неизвестный подписант';
+       let signerName = decodedPayload.signerName || 'Неизвестный подписант'; // Use name from token payload first
        if (signerUserId) {
            const userResult = await pool.query('SELECT full_name FROM users WHERE id = $1', [signerUserId]);
-           if (userResult.rows.length > 0) { signerName = userResult.rows[0].full_name; }
+           if (userResult.rows.length > 0) { signerName = userResult.rows[0].full_name; } // Override if user found
        }
+
 
       res.json({
           documentId: docId, slotName: slot, signerUserId: signerUserId,
@@ -1071,82 +1058,374 @@ app.get('/api/signatures/validate-token', async (req, res) => {
 });
 
 
-// Маршрут для приема данных подписи (ожидает JSON с полями 'token' и 'imageData')
-// Доступен без авторизации в основной системе.
+app.get('/api/signatures/:signatureUuid/image', async (req, res) => {
+  const { signatureUuid } = req.params;
+  try {
+      const fastapiImageUrl = `${FASTAPI_STORAGE_URL}/open_signature/${signatureUuid}`;
+
+      const fastapiResponse = await axios.get(fastapiImageUrl, {
+          responseType: 'stream',
+          timeout: 10000
+      });
+
+      const contentType = fastapiResponse.headers['content-type'] || 'image/png';
+      res.setHeader('Content-Type', contentType);
+      fastapiResponse.data.pipe(res);
+
+  } catch (error) {
+      console.error('Error fetching signature image from FastAPI:', error);
+       if (error.response) {
+           console.error('FastAPI response status:', error.response.status);
+           console.error('FastAPI response data:', error.response.data);
+       } else if (error.request) {
+           console.error('FastAPI request error:', error.request);
+       }
+      if (!res.headersSent) {
+         res.status(500).json({ message: 'Ошибка при получении изображения подписи.' });
+      }
+  }
+});
+
+
+
 app.post('/api/signatures/upload', async (req, res) => {
-    const { token, imageData } = req.body;
+    const { token, imageData, signerName: nameFromBody } = req.body;
     if (!token || !imageData) { return res.status(400).json({ message: 'Отсутствует токен или данные изображения.' }); }
 
-    // 1. Валидация токена и проверка его использования в БД
+    const client = await pool.connect();
     let decodedPayload;
     try {
-        console.log("DEBUG: JWT_SECRET used for VALIDATING (upload):", JWT_SECRET);
+        await client.query('BEGIN');
+
         decodedPayload = jwt.verify(token, JWT_SECRET);
-        // TODO: Проверка токена в БД (signature_tokens): существует, не просрочен, не использован. Пометить как использованный.
-        // Это критически важно для безопасности.
-    } catch (err) { console.error('Token validation failed on /signatures/upload:', err.message); return res.status(401).json({ message: 'Недействительный или просроченный токен подписи.' }); }
 
-    const { docId, slot, signerUserId } = decodedPayload;
-    let signedAsName = decodedPayload.signerName || 'Неизвестный подписант';
-     if (signerUserId && !decodedPayload.signerName) {
-         try { const userResult = await pool.query('SELECT full_name FROM users WHERE id = $1', [signerUserId]); if(userResult.rows.length > 0) { signedAsName = userResult.rows[0].full_name; } } catch(nameError) { console.error('Error fetching signer name for DB save:', nameError); }
-    }
+        const { docId, slot, signerUserId } = decodedPayload;
 
+        // Determine signedAsName
+        let signedAsName = decodedPayload.signerName || nameFromBody || 'Неизвестный подписант';
+         if (signerUserId) {
+             try {
+                 const userResult = await client.query('SELECT full_name FROM users WHERE id = $1', [signerUserId]);
+                 if (userResult.rows.length > 0) {
+                     signedAsName = userResult.rows[0].full_name;
+                 }
+             } catch(nameError) { console.error('Error fetching signer name for DB save:', nameError); }
+        }
 
-    try {
-         // 2. Проверка, не подписан ли уже этот слот
-         const existingSignature = await pool.query(
+         const existingSignature = await client.query(
              'SELECT id FROM document_signatures WHERE document_id = $1 AND signature_slot_name = $2',
              [docId, slot]
          );
-         if (existingSignature.rows.length > 0) { return res.status(200).json({ message: `Слот подписи "${slot}" для этого документа уже был подписан.`, signatureId: existingSignature.rows[0].id }); }
+         if (existingSignature.rows.length > 0) {
+              await client.query('ROLLBACK');
+              return res.status(200).json({ message: `Слот подписи "${slot}" для этого документа уже был подписан.`, signatureId: existingSignature.rows[0].id });
+         }
 
-        // 3. Декодирование Base64
-        const base64Parts = imageData.split(';base64,'); if (base64Parts.length !== 2) { return res.status(400).json({ message: 'Некорректный формат данных изображения (ожидается Base64 Data URL).' }); }
-        const imageType = base64Parts[0].split(':')[1]; const base64Data = base64Parts[1]; let imageBuffer; try { imageBuffer = Buffer.from(base64Data, 'base64'); } catch (e) { console.error('Base64 decoding failed:', e); return res.status(400).json({ message: 'Некорректные данные Base64 изображения.' }); }
+        const base64Parts = imageData.split(';base64,'); if (base64Parts.length !== 2) { await client.query('ROLLBACK'); return res.status(400).json({ message: 'Некорректный формат данных изображения (ожидается Base64 Data URL).' }); }
+        const imageType = base64Parts[0].split(':')[1]; const base64Data = base64Parts[1]; let imageBuffer; try { imageBuffer = Buffer.from(base64Data, 'base64'); } catch (e) { console.error('Base64 decoding failed:', e); await client.query('ROLLBACK'); return res.status(400).json({ message: 'Некорректные данные Base64 изображения.' }); }
 
-        // 4. Отправка в FastAPI
-        const uploadSignatureUrl = `${FASTAPI_STORAGE_URL}/upload_signature`; const formData = new FormData(); const fileExtension = imageType.split('/')[1] || 'png'; const filename = `signature_${docId}_${slot}_${Date.now()}.${fileExtension}`; formData.append('file', imageBuffer, { filename: filename, contentType: imageType });
-         const fastapiResponse = await axios.post(uploadSignatureUrl, formData, { headers: { ...formData.getHeaders() }, maxContentLength: Infinity, maxBodyLength: Infinity, timeout: 10000 }); const signatureImageUuid = fastapiResponse.data?.uuid;
-        if (!signatureImageUuid) { console.error('FastApi did not return signature UUID:', fastapiResponse.data); return res.status(500).json({ message: 'Ошибка сервиса хранения подписи: UUID не получен от хранилища.' }); }
+        const uploadSignatureUrl = `${FASTAPI_STORAGE_URL}/upload_signature`;
+        const formData = new FormData();
+        const fileExtension = imageType.split('/')[1] || 'png';
+        const filename = `signature_${docId}_${slot}_${Date.now()}.${fileExtension}`;
+        formData.append('file', imageBuffer, { filename: filename, contentType: imageType });
 
-        // 5. Сохранение в БД (document_signatures)
-        const result = await pool.query(
+         const fastapiResponse = await axios.post(uploadSignatureUrl, formData, {
+             headers: { ...formData.getHeaders() },
+             maxContentLength: Infinity, maxBodyLength: Infinity, timeout: 10000
+         });
+        const signatureImageUuid = fastapiResponse.data?.uuid;
+        if (!signatureImageUuid) {
+             console.error('FastAPI did not return signature UUID:', fastapiResponse.data);
+             await client.query('ROLLBACK');
+             return res.status(500).json({ message: 'Ошибка сервиса хранения подписи: UUID не получен от хранилища.' });
+        }
+
+        const result = await client.query(
             `INSERT INTO document_signatures (document_id, signature_slot_name, signed_by_user_id, signature_image_uuid, signed_as_name, status, signed_at)
              VALUES ($1, $2, $3, $4, $5, 'signed', CURRENT_TIMESTAMP) RETURNING id`,
             [docId, slot, signerUserId, signatureImageUuid, signedAsName]
-        ); const newSignatureId = result.rows[0].id; console.log(`Signature saved for document ${docId}, slot ${slot}, signature_id ${newSignatureId}`);
-
-        // 6. TODO: Обновление статуса документа (если все требуемые подписи собраны).
-        // Это комплексная логика, требующая сравнения document_signatures с document_templates.required_signatures.
-
-
-        // 7. TODO: Уведомить фронтенд (страницу создания/просмотра) о завершении подписи (через WS/Polling).
-
-
-        res.status(200).json({ message: 'Подпись успешно сохранена.', signatureId: newSignatureId });
-
-    } catch (error) { console.error('Error saving signature:', error); if (error.response) { console.error('Fastapi/other response data:', error.response.data); console.error('Fastapi/other response status:', error.response.status); } else if (error.request) { console.error('Fastapi/other request error:', error.request); } res.status(500).json({ message: 'Ошибка при сохранении подписи.' }); }
-});
-
-
-// Маршрут для получения статуса подписи для конкретного слота документа (для опроса с фронтенда)
-// Доступен без авторизации в основной системе, по documentId и slotName.
-// TODO: Добавить ограничение доступа к этому маршруту (например, только авторизованным пользователям, связанным с документом)
-app.get('/api/documents/:documentId/signature-status/:slotName', async (req, res) => {
-    const { documentId, slotName } = req.params;
-    try {
-        const result = await pool.query(
-            'SELECT status, signed_at, signed_as_name FROM document_signatures WHERE document_id = $1 AND signature_slot_name = $2',
-            [documentId, slotName]
         );
-        if (result.rows.length === 0) { return res.status(200).json({ status: 'pending', message: 'Подпись для слота не найдена.' }); }
-        const signatureStatus = result.rows[0];
-        res.status(200).json({ status: signatureStatus.status, signedAt: signatureStatus.signed_at, signedByName: signatureStatus.signed_as_name, message: `Статус подписи: ${signatureStatus.status}` });
-    } catch (error) { console.error('Error fetching signature status:', error); res.status(500).json({ message: 'Ошибка при получении статуса подписи.' }); }
+        const newSignatureId = result.rows[0].id;
+
+        // TODO: Logic to check if all required signatures are gathered and update document status
+        // This involves querying document_templates and document_signatures within the transaction.
+        // Example (Simplified):
+        // const docTemplateResult = await client.query('SELECT dt.required_signatures FROM documents d JOIN document_templates dt ON d.template_id = dt.id WHERE d.id = $1', [docId]);
+        // const requiredDigitalRoles = docTemplateResult.rows[0]?.required_signatures.filter(sig => ['admin', 'curator', 'dean'].includes(sig.role)).map(sig => sig.role) || [];
+        // if (requiredDigitalRoles.length > 0) {
+        //     const signedSlotsResult = await client.query('SELECT signature_slot_name FROM document_signatures WHERE document_id = $1 AND status = \'signed\'', [docId]);
+        //     const signedSlots = signedSlotsResult.rows.map(row => row.signature_slot_name);
+        //     const allRequiredSigned = requiredDigitalRoles.every(role => signedSlots.includes(role));
+        //     if (allRequiredSigned) {
+        //         await client.query('UPDATE documents SET status = \'approved\' WHERE id = $1', [docId]);
+        //         console.log(`Document ${docId} status updated to 'approved' as all required signatures are gathered.`);
+        //     }
+        // }
+
+
+        await client.query('COMMIT');
+
+        // TODO: Notify relevant parties (e.g., student, curator) about the signature
+
+        res.status(200).json({ message: 'Подпись успешно сохранена.', signatureId: newSignatureId, signatureImageUuid: signatureImageUuid });
+
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error('Error saving signature (transaction rolled back):', error);
+         if (error.response) { console.error('FastAPI/other response data:', error.response.data); console.error('FastAPI/other response status:', error.response.status); }
+         else if (error.request) { console.error('FastAPI/other request error:', error.request); }
+        res.status(500).json({ message: 'Ошибка при сохранении подписи.' });
+    } finally {
+        client.release();
+    }
 });
 
 
+app.get('/api/documents/:documentId/signature-status/:slotName', async (req, res) => {
+  const { documentId, slotName } = req.params;
+  try {
+      const result = await pool.query(
+          'SELECT status, signed_at, signed_as_name, signature_image_uuid FROM document_signatures WHERE document_id = $1 AND signature_slot_name = $2',
+          [documentId, slotName]
+      );
+
+      if (result.rows.length === 0) {
+          return res.status(200).json({ status: 'pending', message: 'Подпись для слота не найдена.' });
+      }
+
+      const signatureStatus = result.rows[0];
+      res.status(200).json({
+           status: signatureStatus.status,
+           signedAt: signatureStatus.signed_at,
+           signedByName: signatureStatus.signed_as_name,
+           signatureImageUuid: signatureStatus.signature_image_uuid,
+           message: `Статус подписи: ${signatureStatus.status}`
+      });
+
+  } catch (error) { console.error('Error fetching signature status:', error); res.status(500).json({ message: 'Ошибка при получении статуса подписи.' }); }
+});
+
+
+// --- НОВЫЕ МАРШРУТЫ УВЕДОМЛЕНИЙ ---
+
+// GET /api/notifications - Получить уведомления для текущего пользователя
+app.get('/api/notifications', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { status, limit, offset } = req.query; // status: 'all', 'read', 'unread'
+
+        let query = `
+            SELECT id, title, message, type, is_read, created_at
+            FROM notifications
+            WHERE user_id = $1
+        `;
+        const params = [userId];
+        let paramIndex = 2;
+
+        if (status === 'read') {
+            query += ` AND is_read = TRUE`;
+        } else if (status === 'unread') {
+            query += ` AND is_read = FALSE`;
+        }
+        // Если status не указан или 'all', фильтрация по is_read не добавляется
+
+        query += ` ORDER BY created_at DESC`;
+
+        if (limit !== undefined && offset !== undefined) {
+            query += ` LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+            params.push(limit, offset);
+            // paramIndex += 2; // Не нужно увеличивать paramIndex после LIMIT/OFFSET
+        }
+
+
+        const result = await pool.query(query, params);
+
+        // Форматируем дату и, возможно, добавляем иконки (хотя иконки лучше на фронте)
+        const formattedNotifications = result.rows.map(notif => ({
+            ...notif,
+            date: notif.created_at.toISOString(), // Отправляем в ISO формате, фронтенд отформатирует
+            read: notif.is_read, // Переименовываем is_read в read для соответствия фронтенду
+        }));
+
+        // TODO: Добавить подсчет общего количества уведомлений (для пагинации)
+        // const countQuery = `SELECT COUNT(*) FROM notifications WHERE user_id = $1 ${status === 'read' ? 'AND is_read = TRUE' : status === 'unread' ? 'AND is_read = FALSE' : ''}`;
+        // const countResult = await pool.query(countQuery, [userId]);
+        // const total = parseInt(countResult.rows[0].count, 10);
+
+
+        res.json({
+             items: formattedNotifications,
+             // total: total, // Включить после реализации countQuery
+             // limit: parseInt(limit, 10) || undefined, // Включить после реализации countQuery
+             // offset: parseInt(offset, 10) || 0, // Включить после реализации countQuery
+        });
+
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+        res.status(500).json({ message: 'Ошибка при получении уведомлений.' });
+    }
+});
+
+
+// PUT /api/notifications/:id/read - Отметить конкретное уведомление как прочитанное
+app.put('/api/notifications/:id/read', authenticateToken, async (req, res) => {
+    try {
+        const notificationId = req.params.id;
+        const userId = req.user.id;
+
+        const result = await pool.query(
+            `UPDATE notifications
+             SET is_read = TRUE, updated_at = CURRENT_TIMESTAMP
+             WHERE id = $1 AND user_id = $2
+             RETURNING id`, // Возвращаем id обновленной записи
+            [notificationId, userId]
+        );
+
+        if (result.rowCount === 0) {
+            // Уведомление не найдено или не принадлежит текущему пользователю
+            return res.status(404).json({ message: 'Уведомление не найдено или у вас нет прав на его изменение.' });
+        }
+
+        res.status(200).json({ message: 'Уведомление отмечено как прочитанное.', notificationId: notificationId });
+
+    } catch (error) {
+        console.error('Error marking notification as read:', error);
+        res.status(500).json({ message: 'Ошибка при отметке уведомления как прочитанного.' });
+    }
+});
+
+
+// PUT /api/notifications/mark-all-read - Отметить все непрочитанные уведомления как прочитанные
+app.put('/api/notifications/mark-all-read', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const result = await pool.query(
+            `UPDATE notifications
+             SET is_read = TRUE, updated_at = CURRENT_TIMESTAMP
+             WHERE user_id = $1 AND is_read = FALSE`,
+            [userId]
+        );
+
+        // Возвращаем количество обновленных записей
+        res.status(200).json({ message: `Отмечено как прочитанное ${result.rowCount} уведомлений.`, updatedCount: result.rowCount });
+
+    } catch (error) {
+        console.error('Error marking all notifications as read:', error);
+        res.status(500).json({ message: 'Ошибка при отметке всех уведомлений как прочитанных.' });
+    }
+});
+
+
+// Helper function to resolve recipient criteria into a list of user IDs
+// Handles roles, groups, 'all_users', and potentially individual user IDs
+const resolveRecipients = async (recipientCriteria) => {
+    const client = await pool.connect(); // Используем клиента из пула
+    const userIds = new Set(); // Используем Set для автоматического удаления дубликатов
+
+    try {
+        for (const criteria of recipientCriteria) {
+            if (criteria === 'all_users') {
+                const result = await client.query('SELECT id FROM users WHERE is_active = TRUE');
+                result.rows.forEach(row => userIds.add(row.id));
+            } else if (['admin', 'curator', 'parent', 'student'].includes(criteria)) {
+                const result = await client.query('SELECT id FROM users WHERE role = $1 AND is_active = TRUE', [criteria]);
+                result.rows.forEach(row => userIds.add(row.id));
+            } else if (criteria.startsWith('group:')) {
+                const groupName = criteria.substring('group:'.length);
+                const groupResult = await client.query('SELECT id FROM groups WHERE name = $1 AND is_active = TRUE', [groupName]);
+                if (groupResult.rows.length > 0) {
+                    const groupId = groupResult.rows[0].id;
+                    // Получаем студентов группы
+                    const studentResult = await client.query('SELECT student_id FROM student_groups WHERE group_id = $1 AND is_active = TRUE', [groupId]);
+                    studentResult.rows.forEach(row => userIds.add(row.student_id));
+                    // TODO: Возможно, добавить куратора группы и родителей студентов группы
+                    // const curatorResult = await client.query('SELECT curator_id FROM groups WHERE id = $1', [groupId]);
+                    // if (curatorResult.rows[0]?.curator_id) userIds.add(curatorResult.rows[0].curator_id);
+                    // const studentIdsInGroup = studentResult.rows.map(row => row.student_id);
+                    // if (studentIdsInGroup.length > 0) {
+                    //     const parentResult = await client.query('SELECT parent_id FROM parent_students WHERE student_id = ANY($1::int[])', [studentIdsInGroup]);
+                    //     parentResult.rows.forEach(row => userIds.add(row.parent_id));
+                    // }
+                }
+            }
+             // TODO: Добавить обработку 'user:userId' для отправки конкретному пользователю
+            // else if (criteria.startsWith('user:')) {
+            //     const targetUserId = parseInt(criteria.substring('user:'.length), 10);
+            //     if (!isNaN(targetUserId)) {
+            //          const userCheck = await client.query('SELECT id FROM users WHERE id = $1 AND is_active = TRUE', [targetUserId]);
+            //          if (userCheck.rows.length > 0) {
+            //             userIds.add(targetUserId);
+            //          }
+            //     }
+            // }
+            else {
+                console.warn(`Unknown recipient criteria: ${criteria}`);
+            }
+        }
+    } catch (error) {
+        console.error('Error in resolveRecipients:', error);
+        throw error; // Пробрасываем ошибку выше
+    } finally {
+        client.release(); // Возвращаем клиента в пул
+    }
+
+    return Array.from(userIds); // Преобразуем Set обратно в массив
+};
+
+
+// POST /api/notifications - Создать новое уведомление (только для админа)
+app.post('/api/notifications', authenticateToken, async (req, res) => {
+    // Проверка, что пользователь является администратором
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Недостаточно прав для создания уведомлений.' });
+    }
+
+    const { title, message, type, recipients } = req.body; // recipients - массив строк, e.g. ['curator', 'group:ПО2301']
+
+    // Базовая валидация
+    if (!title || !message || !recipients || !Array.isArray(recipients) || recipients.length === 0) {
+        return res.status(400).json({ message: 'Заголовок, сообщение и хотя бы один получатель обязательны.' });
+    }
+
+    const client = await pool.connect(); // Получаем клиента из пула
+    try {
+        await client.query('BEGIN'); // Начинаем транзакцию
+
+        // Определяем финальный список user_id на основе recipientCriteria
+        const recipientUserIds = await resolveRecipients(recipients);
+
+        if (recipientUserIds.length === 0) {
+             await client.query('ROLLBACK'); // Откатываем, если нет получателей
+             return res.status(400).json({ message: 'Не удалось определить получателей на основе предоставленных критериев.' });
+        }
+
+        // Вставляем уведомления для каждого пользователя
+        const insertQuery = `
+            INSERT INTO notifications (title, message, type, user_id, is_read, created_at)
+            VALUES ($1, $2, $3, $4, FALSE, CURRENT_TIMESTAMP)
+        `;
+
+        for (const userId of recipientUserIds) {
+            await client.query(insertQuery, [title, message, type || 'general', userId]);
+        }
+
+        await client.query('COMMIT'); // Коммитим транзакцию
+
+        res.status(201).json({
+            message: `Уведомление успешно создано для ${recipientUserIds.length} пользователей.`,
+            createdCount: recipientUserIds.length
+        });
+
+    } catch (error) {
+        await client.query('ROLLBACK'); // Откатываем транзакцию в случае любой ошибки
+        console.error('Error creating notifications (transaction rolled back):', error);
+        res.status(500).json({ message: 'Ошибка при создании уведомлений.' });
+    } finally {
+        client.release(); // Возвращаем клиента в пул
+    }
+});
 
 
 // --- Запуск сервера ---

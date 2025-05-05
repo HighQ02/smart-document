@@ -30,7 +30,7 @@ import './styles.css';
 const queryClient = new QueryClient();
 
 // Настройка глобальных параметров axios
-axios.defaults.baseURL = 'http://localhost:7000/'; // Обновлено на порт 7000
+axios.defaults.baseURL = 'http://192.168.0.104:7000/'; // Обновлено на порт 7000
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 // Добавляем перехватчик для автоматического добавления токена авторизации

@@ -71,6 +71,9 @@ CREATE TABLE document_templates (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+ALTER TABLE document_templates
+ADD COLUMN html_template TEXT;
+
 -- Таблица документов (documents)
 CREATE TABLE documents (
     id SERIAL PRIMARY KEY,
@@ -97,13 +100,15 @@ ADD CONSTRAINT documents_status_check CHECK (status IN ('draft', 'submitted', 'a
 -- Таблица подписей документов (document_signatures)
 CREATE TABLE document_signatures (
     id SERIAL PRIMARY KEY,
-    document_id INTEGER REFERENCES documents(id) ON DELETE CASCADE,
-    user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
-    role VARCHAR(50) NOT NULL,
-    status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'signed', 'rejected')),
-    signed_at TIMESTAMP WITH TIME ZONE,
-    comment TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    document_id INTEGER REFERENCES documents(id) ON DELETE CASCADE, -- Ссылка на документ, который подписали
+    signature_slot_name VARCHAR(100), -- Имя слота подписи из шаблона (например, 'student', 'curator', 'doctor')
+    signed_by_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL, -- Кто подписал (если это пользователь системы, например, куратор)
+    signed_as_name VARCHAR(255), -- Имя, под которым поставлена подпись (если подписант не пользователь системы, например, внешний врач)
+    signature_image_uuid UUID, -- UUID файла изображения подписи в хранилище (FastAPI)
+    signed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, -- Время подписи
+    status VARCHAR(50) DEFAULT 'signed' CHECK (status IN ('pending', 'signed', 'rejected')), -- Статус подписи (например, подписано, отклонено)
+    -- Дополнительно можно добавить поля для координат подписи на документе, если это нужно для отображения поверх PDF
+    UNIQUE (document_id, signature_slot_name) -- Убедиться, что один слот подписи может быть подписан только один раз для данного документа
 );
 
 -- Таблица запросов (requests)
@@ -172,7 +177,33 @@ CREATE TABLE user_activity (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+
+
+-- Сначала удаляем таблицы, которые ссылаются на другие
+DROP TABLE IF EXISTS notification_settings CASCADE;
+DROP TABLE IF EXISTS notifications CASCADE;
+DROP TABLE IF EXISTS user_activity CASCADE;
+DROP TABLE IF EXISTS schedule CASCADE;
+DROP TABLE IF EXISTS requests CASCADE;
+DROP TABLE IF EXISTS document_signatures CASCADE;
+DROP TABLE IF EXISTS documents CASCADE;
+DROP TABLE IF EXISTS document_templates CASCADE;
+DROP TABLE IF EXISTS parent_students CASCADE;
+DROP TABLE IF EXISTS student_group_history CASCADE;
+DROP TABLE IF EXISTS student_groups CASCADE;
+DROP TABLE IF EXISTS groups CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS file_storage_metadata CASCADE;
+
+
+
 SELECT * FROM users
+SELECT * FROM groups
+SELECT * FROM documents
+SELECT * FROM document_templates
+SELECT * FROM document_signatures
+SELECT template_id FROM documents WHERE id = 10;
+
 
 
 
@@ -281,4 +312,210 @@ INSERT INTO parent_students (parent_id, student_id, relationship, is_primary) VA
 (62, 32, 'Родитель', true), (63, 33, 'Родитель', true), (64, 34, 'Родитель', true), (65, 35, 'Родитель', true), (66, 36, 'Родитель', true);
 
 
+
+
+
+-- Вставка шаблона "Справка о заболевании"
+-- Вставка обновленного шаблона "Справка о заболевании"
+INSERT INTO document_templates (name, description, template_fields, required_signatures)
+VALUES (
+    'Справка о заболевании',
+    'Шаблон для оформления справки, подтверждающей временную нетрудоспособность студента по болезни. Требует цифровой подписи куратора после предоставления бумажной копии справки.',
+    '[
+      { "name": "illness_start_date", "label": "Дата начала отсутствия", "type": "date", "required": true },
+      { "name": "illness_end_date", "label": "Дата окончания отсутствия", "type": "date", "required": true },
+      { "name": "diagnosis", "label": "По какой причине отсутствовал (Диагноз)", "type": "textarea", "required": true },
+      { "name": "issuing_institution", "label": "Наименование медицинского учреждения", "type": "text", "required": true },
+      { "name": "issue_date", "label": "Дата выдачи справки", "type": "date", "required": true },
+      { "name": "notes", "label": "Примечания (опционально)", "type": "textarea", "required": false }
+    ]',
+    '[
+      { "role": "curator", "title": "Проверено куратором" },
+	  { "role": "admin", "title": "Проверено администратором" }
+    ]'
+);
+-- Только цифровая подпись куратора
+
+-- Вставка обновленного шаблона "Заявление на академический отпуск"
+INSERT INTO document_templates (name, description, template_fields, required_signatures)
+VALUES (
+    'Заявление на академический отпуск',
+    'Шаблон заявления на предоставление академического отпуска студенту. Требует цифровых подписей куратора и декана.',
+    '[
+      { "name": "leave_reason_type", "label": "Тип причины академического отпуска", "type": "select", "required": true, "options": [ {"value": "medical", "label": "По медицинским показаниям"}, {"value": "family", "label": "По семейным обстоятельствам"}, {"value": "other", "label": "Иная причина"} ] },
+      { "name": "leave_reason_details", "label": "По какой причине берется академический отпуск", "type": "textarea", "required": true, "placeholder": "Укажите подробности причины академического отпуска" },
+      { "name": "leave_start_date", "label": "Предполагаемая дата начала отпуска", "type": "date", "required": true },
+      { "name": "leave_end_date", "label": "Предполагаемая дата окончания отпуска", "type": "date", "required": true }
+    ]',
+    '[
+      { "role": "curator", "title": "Согласовано куратором" },
+      { "role": "dean", "title": "Утверждено деканом" },
+	  { "role": "admin", "title": "Утверждено администратором" }
+    ]'
+);
+-- Цифровая подпись администратора
+-- Цифровая подпись куратора
+-- Цифровая подпись декана
+
+-- Обновление шаблона "Справка о заболевании"
+UPDATE document_templates
+SET html_template = '
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Справка о заболевании</title>
+<style>
+  body { font-family: Arial, sans-serif; line-height: 1.5; margin: 30mm 20mm; font-size: 11pt; }
+  .center { text-align: center; }
+  .bold { font-weight: bold; }
+  .underline { text-decoration: underline; }
+  .margin-top { margin-top: 15px; }
+  .margin-bottom { margin-bottom: 15px; }
+  .indent { text-indent: 20mm; }
+  .signature-line { display: inline-block; min-width: 120px; border-bottom: 1px solid #000; height: 1.2em; vertical-align: bottom; margin: 0 10px; }
+  .stamp-placeholder { display: inline-block; width: 80px; height: 80px; border: 2px dashed #ccc; text-align: center; line-height: 80px; vertical-align: middle; font-size: 10pt; color: #888;}
+    /* Стили для блока цифровой подписи, если он будет добавлен */
+  .digital-signature-block {
+      margin-top: 30px;
+      padding-top: 10px;
+      border-top: 1px dashed #ccc; /* Легкая граница для отделения */
+      font-size: 10pt;
+      color: #555;
+  }
+   .digital-signature-block .signatureRole { font-weight: bold; margin-bottom: 2px; }
+   .digital-signature-block .signatureName { font-style: italic; margin-bottom: 2px; }
+   /* Обратите внимание: стиль для img tag задан инлайн при его генерации во фронтенде */
+</style>
+</head>
+<body>
+
+<div class="center margin-bottom">
+  <span class="bold">СПРАВКА</span><br>
+  <span class="bold">о временной нетрудоспособности студента</span><br>
+  <span class="underline">{{naimenovanie_uchebnogo_zavedeniya}}</span> </div>
+
+<div class="margin-top">
+  <p>Выдана: <span class="underline">{{student_name}}</span></p>
+  <p>студенту {{student_course}} курса группы № {{student_group}}</p>
+</div>
+
+<div class="margin-top">
+  <p>Освобождается от учебных занятий по болезни</p>
+  <p>с <span class="underline">{{illness_start_date}}</span> по <span class="underline">{{illness_end_date}}</span> включительно.</p>
+  <p>Диагноз: {{diagnosis}}</p>
+  <p>Примечания: {{notes}}</p>
+</div>
+
+<div class="margin-top">
+  <p>Врач: _________________________</p>
+</div>
+
+<div class="margin-top">
+  <p>Дата выдачи справки: <span class="underline">{{issue_date}}</span></p>
+</div>
+
+<div class="margin-top">
+    <p>Подпись врача: <span class="signature-line"></span></p>
+    <p style="display: inline-block; vertical-align: top; margin-left: 50px;">
+        Место печати<br>
+        <span class="stamp-placeholder">Печать</span>
+    </p>
+</div>
+
+<div class="digital-signature-block">
+   Подписано ({{digital_signature_role}}): {{digital_signature_name}}
+   <br>
+   {{digital_signature_image_html}}
+   <br>
+   </div>
+
+
+</body>
+</html>
+</textarea>
+'
+WHERE id = 1; -- Замените ИД_СПРАВКИ на реальный ID из вашей БД
+
+-- Обновление шаблона "Заявление на академический отпуск"
+UPDATE document_templates
+SET html_template = '
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Заявление на академический отпуск</title>
+<style>
+  body { font-family: "Times New Roman", Times, serif; line-height: 1.5; margin: 40mm 20mm; font-size: 12pt; }
+  .align-right { text-align: right; }
+  .align-left { text-align: left; }
+  .center { text-align: center; }
+  .bold { font-weight: bold; }
+  .underline { text-decoration: underline; }
+  .margin-top { margin-top: 20px; }
+  .margin-bottom { margin-bottom: 20px; }
+  .indent { text-indent: 30mm; } /* Абзацный отступ */
+  .signature-line { display: inline-block; min-width: 150px; border-bottom: 1px solid #000; height: 1.2em; vertical-align: bottom; margin: 0 10px; }
+  /* Стили для блока цифровой подписи, если он будет добавлен */
+  .digital-signature-block {
+      margin-top: 30px;
+      padding-top: 10px;
+      border-top: 1px dashed #ccc; /* Легкая граница для отделения */
+      font-size: 10pt;
+      color: #555;
+  }
+   .digital-signature-block .signatureRole { font-weight: bold; margin-bottom: 2px; }
+   .digital-signature-block .signatureName { font-style: italic; margin-bottom: 2px; }
+   /* Обратите внимание: стиль для img tag задан инлайн при его генерации во фронтенде */
+</style>
+</head>
+<body>
+
+<div class="align-right">
+  Ректору<br>
+  <span class="underline">{{naimenovanie_uchebnogo_zavedeniya}}</span><br>
+  ____________________________<br>
+  от студента {{student_course}} курса группы {{student_group}}<br>
+  ФИО: {{student_name}}<br>
+  ____________________________
+</div>
+
+<div class="center margin-top margin-bottom">
+  <span class="bold">ЗАЯВЛЕНИЕ</span>
+</div>
+
+<div>
+  <p class="indent">Прошу предоставить мне академический отпуск</p>
+  <p class="indent">по причине <span class="underline">{{leave_reason_type_translated}}</span> - {{leave_reason_details}}</p>
+  <p class="indent">с <span class="underline">{{leave_start_date}}</span> по <span class="underline">{{leave_end_date}}</span>.</p>
+</div>
+
+<div class="margin-top">
+  <p>Дата: {{data_segodnya}}</p>
+</div>
+
+<div class="margin-top">
+  <p>Подпись студента: <span class="signature-line"></span></p>
+</div>
+
+<div class="digital-signature-block">
+   Подписано ({{digital_signature_role}}): {{digital_signature_name}}
+   <br>
+   {{digital_signature_image_html}}
+   <br>
+   </div>
+
+</body>
+</html>
+</textarea>
+'
+WHERE id = 2; -- Замените ИД_ЗАЯВЛЕНИЯ на реальный ID из вашей БД
+
+
+CREATE TABLE file_storage_metadata (
+    uuid UUID PRIMARY KEY,
+    original_filename VARCHAR(255) NOT NULL,
+    content_type VARCHAR(100) NOT NULL,
+    upload_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
 
