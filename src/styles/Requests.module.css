@@ -211,3 +211,155 @@
     display: flex;
     gap: 8px;
 }
+
+/* Стили для индикаторов статуса */
+.statusBadge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: bold;
+    color: #fff; /* Цвет текста по умолчанию */
+}
+
+.statusBadgePending {
+    background-color: #ffc107; /* Желтый */
+    color: #212529; /* Темный текст для контраста */
+}
+
+.statusBadgeApproved {
+    background-color: #28a745; /* Зеленый */
+}
+
+.statusBadgeRejected {
+    background-color: #dc3545; /* Красный */
+}
+
+/* Новые статусы */
+.statusBadgeArchived {
+    background-color: #6c757d; /* Серый */
+}
+
+.statusBadgeDraft {
+    background-color: #007bff; /* Синий (или другой цвет для черновиков) */
+}
+
+
+/* Стили для таблицы (можно адаптировать существующие .requestsTableContainer) */
+.requestsTableContainer { /* Контейнер для таблицы, если нужен overflow */
+    overflow-x: auto; /* Добавить прокрутку, если таблица шире контейнера */
+    width: 100%;
+}
+
+.requestsTable {
+    width: 100%; /* Таблица занимает всю доступную ширину контейнера */
+    border-collapse: collapse; /* Убираем двойные границы ячеек */
+    font-size: 0.9em;
+}
+
+.requestsTable th,
+.requestsTable td {
+    padding: 10px; /* Внутренние отступы ячеек */
+    border-bottom: 1px solid #eee; /* Граница между строками */
+    text-align: left; /* Выравнивание текста по левому краю */
+}
+
+.requestsTable th {
+    background-color: #f8f8f8; /* Фон заголовков */
+    font-weight: bold;
+    color: #333;
+    text-transform: uppercase; /* Заголовки в верхнем регистре */
+    font-size: 0.85em;
+}
+
+.requestsTable tbody tr:hover {
+    background-color: #f5f5f5; /* Фон строки при наведении */
+}
+
+.tableDocumentCell { /* Стиль для ячейки с иконкой и названием */
+    display: flex;
+    align-items: center;
+    /* gap: 8px; Отступ между иконкой и текстом, если не используется margin у иконки */
+}
+
+
+/* Стили для модального окна */
+.modalOverlay {
+    position: fixed; /* Фиксированное положение */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7); /* Полупрозрачный черный фон */
+    display: flex;
+    justify-content: center; /* Центрирование по горизонтали */
+    align-items: center; /* Центрирование по вертикали */
+    z-index: 1000; /* Поверх всех остальных элементов */
+}
+
+.modalContent {
+    background-color: #fff; /* Белый фон контента */
+    padding: 20px;
+    border-radius: 8px; /* Скругленные углы */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень */
+    position: relative; /* Для позиционирования кнопки закрытия */
+    max-height: 90%; /* Максимальная высота */
+    overflow: hidden; /* Скрываем все, что выходит за пределы */
+    display: flex; /* Используем flexbox */
+    flex-direction: column; /* Элементы внутри располагаются по вертикали */
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee; /* Разделитель хедера */
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.modalTitle {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.modalBody {
+    flex-grow: 1; /* Занимает все доступное пространство */
+    overflow-y: auto; /* Добавляет прокрутку, если контент не помещается */
+    /* Стили для iframe или другого контента внутри */
+}
+
+.modalFooter {
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid #eee; /* Разделитель футера */
+    padding-top: 15px;
+    margin-top: 15px;
+}
+
+/* Кнопка закрытия в модальном окне */
+.closeButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 20px;
+    color: #666;
+    transition: color 0.2s ease;
+}
+
+.closeButton:hover {
+    color: #333;
+}
+
+/* Стиль для Danger кнопки (Отклонить) */
+.buttonDanger {
+    background-color: #dc3545; /* Красный */
+    color: #fff;
+}
+
+.buttonDanger:hover:not(:disabled) {
+    background-color: #c82333; /* Темнее красный при наведении */
+}

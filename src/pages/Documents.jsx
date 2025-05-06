@@ -298,37 +298,6 @@ const Documents = () => {
               <Download style={{width: '1em', height: '1em', marginRight: '6px'}} />
               Скачать
             </button>
-            {doc.status === 'pending' && (
-              <>
-                <button
-                  className={`${styles.btnOutline} ${styles.btn}`}
-                  onClick={() => {
-                    setSelectedDoc(doc);
-                    setShowApproveDialog(true);
-                  }}
-                  disabled={isLoading || isFetchingMore}
-                >
-                   <CheckCircle style={{width: '1em', height: '1em', marginRight: '6px'}} />
-                   Одобрить
-                </button>
-                <button
-                  className={`${styles.btnOutline} ${styles.btnDanger} ${styles.btn}`}
-                  onClick={() => {
-                    setSelectedDoc(doc);
-                    setShowRejectDialog(true);
-                  }}
-                   disabled={isLoading || isFetchingMore}
-                >
-                  <XCircle style={{width: '1em', height: '1em', marginRight: '6px'}} />
-                  Отклонить
-                </button>
-              </>
-            )}
-             {(doc.status === 'approved' || doc.status === 'rejected' || doc.status === 'pending') && doc.status !== 'archived' && (
-                 <button className={`${styles.btnOutline} ${styles.btn}`} onClick={() => archiveDocument(doc)} disabled={isLoading || isFetchingMore}>
-                      Архивировать
-                  </button>
-             )}
           </div>
         );
       case 'curator':

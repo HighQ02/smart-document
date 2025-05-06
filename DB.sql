@@ -144,6 +144,15 @@ CREATE TABLE schedule (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+ALTER TABLE schedule
+ADD COLUMN priority VARCHAR(50) DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high'));
+
+ALTER TABLE schedule
+ADD COLUMN user_id INTEGER REFERENCES users(id) ON DELETE SET NULL;
+
+ALTER TABLE schedule
+ALTER COLUMN end_date SET NOT NULL;
+
 -- Таблица уведомлений (notifications)
 CREATE TABLE notifications (
     id SERIAL PRIMARY KEY,
@@ -156,6 +165,16 @@ CREATE TABLE notifications (
     is_read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE notifications
+ADD COLUMN updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE notifications
+DROP CONSTRAINT notifications_type_check;
+
+ALTER TABLE notifications
+ADD CONSTRAINT notifications_type_check CHECK (type IN ('system', 'document', 'request', 'deadline', 'general', 'info', 'warning', 'urgent'));
+
 
 -- Таблица настроек уведомлений (notification_settings)
 CREATE TABLE notification_settings (
@@ -199,13 +218,16 @@ DROP TABLE IF EXISTS file_storage_metadata CASCADE;
 
 SELECT * FROM users
 SELECT * FROM groups
+SELECT * FROM schedule
 SELECT * FROM documents
 SELECT * FROM document_templates
 SELECT * FROM document_signatures
 SELECT template_id FROM documents WHERE id = 10;
+SELECT * FROM notifications
+SELECT * FROM requests
+SELECT id, name, is_active FROM groups WHERE id = 1
 
-
-
+SELECT u.id, u.full_name, u.email, u.phone, u.avatar_url, u.is_active, g.name as group_name, (SELECT p.full_name FROM users p JOIN parent_students ps ON p.id = ps.parent_id WHERE ps.student_id = u.id AND p.is_active = TRUE LIMIT 1) as parent_name, (SELECT COUNT(*) FROM documents d WHERE d.student_id = u.id) as docs_total, (SELECT COUNT(*) FROM documents d WHERE d.student_id = u.id AND d.status IN ('pending', 'submitted')) as docs_on_review FROM users u LEFT JOIN student_groups sg ON u.id = sg.student_id AND sg.is_active = TRUE LEFT JOIN groups g ON sg.group_id = g.id WHERE u.role = 'student' AND u.is_active = TRUE ORDER BY u.full_name;
 
 -- Вставка всех пользователей (изначальные + новые кураторы, студенты, родители)
 -- ID будут присвоены автоматически, начиная с 1
@@ -216,9 +238,9 @@ INSERT INTO users (full_name, role, email, password_hash, phone, avatar_url, is_
 ('Тойшыбаев Жаслан', 'parent', 'jaslan@example.com', '$2a$10$iIGfib7Ld938EPY6K.1PQ.hpKR6VlCAaWRiOdiHcX.4Jffw.LP8VO', '+79051234567', 'https://randomuser.me/api/portraits/men/5.jpg', true),
 
 -- Новые кураторы (получат ID 4, 5, 6)
-('Иванов Петр', 'curator', 'ivanov.p@example.com', '$2a$10$DUMMYHASHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', null, null, true),
-('Сидорова Анна', 'curator', 'sidorova.a@example.com', '$2a$10$DUMMYHASHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', null, null, true),
-('Ковалев Сергей', 'curator', 'kovalev.s@example.com', '$2a$10$DUMMYHASHXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', null, null, true),
+('Иванов Петр', 'curator', 'ivanov.p@example.com', '$2a$10$XalApRBfBjRHrA.rZZH6UuIGUzUAxnSQ4yAafCyUgLRAEfJdX1Ura', null, null, true),
+('Сидорова Анна', 'curator', 'sidorova.a@example.com', '$2a$10$.WxUcMz84.Hn9KkoR8eykexkgMTTXn2h2hvI4DzqiTwX3LHbGiUFG', null, null, true),
+('Ковалев Сергей', 'curator', 'kovalev.s@example.com', '$2a$10$QmOLo6TghF9Jl0O9Gp8kYOdRqgGF8/u771.sL7m0ObLAEemzvoCMW', null, null, true),
 
 -- Студенты (получат ID с 7 по 36)
 ('Студент 1', 'student', 'student1@example.com', '$2b$10$yRNt6Q6oM9Iup9WMUAnz..6.Dfra2prGZ/auLyLevvMbt3KoJkxKe', null, null, true), -- ID 7
@@ -310,6 +332,11 @@ INSERT INTO parent_students (parent_id, student_id, relationship, is_primary) VA
 (52, 22, 'Родитель', true), (53, 23, 'Родитель', true), (54, 24, 'Родитель', true), (55, 25, 'Родитель', true), (56, 26, 'Родитель', true),
 (57, 27, 'Родитель', true), (58, 28, 'Родитель', true), (59, 29, 'Родитель', true), (60, 30, 'Родитель', true), (61, 31, 'Родитель', true),
 (62, 32, 'Родитель', true), (63, 33, 'Родитель', true), (64, 34, 'Родитель', true), (65, 35, 'Родитель', true), (66, 36, 'Родитель', true);
+
+
+UPDATE users SET password_hash = '$2a$10$XalApRBfBjRHrA.rZZH6UuIGUzUAxnSQ4yAafCyUgLRAEfJdX1Ura' WHERE id = 4;
+UPDATE users SET password_hash = '$2a$10$PMqa53hnKwbSMHV8Dngv3OkgSNhascj2kJZxPy/2EgfFjthzc41uy' WHERE id = 5;
+UPDATE users SET password_hash = '$2a$10$QmOLo6TghF9Jl0O9Gp8kYOdRqgGF8/u771.sL7m0ObLAEemzvoCMW' WHERE id = 6;
 
 
 

@@ -212,7 +212,7 @@
     text-align: left;
     border-bottom: 1px solid hsl(214, 32%, 91%);
     vertical-align: middle;
-     color: hsl(222, 47%, 11%);
+    color: hsl(222, 47%, 11%);
 }
 
 .documentsTable th {
@@ -233,6 +233,8 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    min-height: 61px;
+    max-height: 150px;
     color: hsl(222, 47%, 11%);
     font-weight: 500;
 }

@@ -1,19 +1,29 @@
-/* Groups.module.css */
+/* src/styles/Groups.module.css */
+
+/* Основной контейнер страницы */
 .groupsContainer {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  animation: fadeIn 0.5s ease-in-out;
+  padding: 20px; /* Внутренние отступы */
+  max-width: 1200px; /* Ограничиваем максимальную ширину */
+  margin: 0 auto; /* Центрируем контейнер */
+  opacity: 0; /* Начальная прозрачность для анимации */
+  animation: fadeIn 0.5s ease-in-out forwards; /* Анимация появления */
 }
 
+/* Анимация появления */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-.groupsHeader {
+/* Заголовок страницы и кнопка создания */
+.pageHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  flex-wrap: wrap; /* Перенос элементов на маленьких экранах */
+  gap: 10px; /* Расстояние между блоками */
 }
 
 .pageTitle {
@@ -25,14 +35,17 @@
 .pageDescription {
   color: #666;
   margin: 0;
+  font-size: 14px;
 }
 
-.headerActions {
+.headerActions { /* Контейнер для кнопок в заголовке (если их несколько) */
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
-.btn {
+/* Общие стили кнопок */
+.button { /* Переименован из .btn */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -41,89 +54,123 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s ease; /* Плавный переход */
+  text-decoration: none; /* Убираем подчеркивание для ссылок */
 }
 
-.btnPrimary {
-  background-color: #0066cc;
+.buttonPrimary { /* Переименован из .btnPrimary */
+  background-color: #0066cc; /* Синий */
   color: white;
   border: 1px solid #0066cc;
 }
 
-.btnPrimary:hover {
-  background-color: #0052a3;
+.buttonPrimary:hover:not(:disabled) {
+  background-color: #0052a3; /* Темнее при наведении */
   border-color: #0052a3;
 }
 
-.btnOutline {
+.buttonOutline { /* Переименован из .btnOutline */
   background-color: transparent;
   color: #333;
-  border: 1px solid #ccc;
+  border: 1px solid #ccc; /* Серый */
 }
 
-.btnOutline:hover {
-  background-color: #f5f5f5;
+.buttonOutline:hover:not(:disabled) {
+  background-color: #f5f5f5; /* Светло-серый при наведении */
+  border-color: #bbb;
 }
 
-.btnSm {
+.buttonSmall { /* Переименован из .btnSm */
   padding: 4px 12px;
   font-size: 12px;
 }
 
-.icon {
+.buttonDanger { /* Стиль для кнопки удаления */
+    background-color: #dc3545; /* Красный */
+    color: white;
+    border-color: #dc3545;
+}
+
+.buttonDanger:hover:not(:disabled) {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+.button:disabled,
+.buttonOutline:disabled,
+.buttonDanger:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Стили иконок внутри кнопок или текста */
+.icon { /* Общий класс для иконок */
   margin-right: 8px;
   font-size: 16px;
 }
 
-.tabs {
+/* Стили табов */
+.tabsContainer { /* Переименован из .tabs */
   margin-top: 16px;
 }
 
 .tabsList {
   display: flex;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0; /* Разделитель снизу */
   margin-bottom: 16px;
+  overflow-x: auto; /* Горизонтальная прокрутка, если табы не помещаются */
+  -webkit-overflow-scrolling: touch; /* Плавная прокрутка на iOS */
 }
 
-.tabButton {
+.tabsTrigger { /* Переименован из .tabButton */
   padding: 8px 16px;
   background: none;
   border: none;
-  border-bottom: 3px solid transparent;
+  border-bottom: 3px solid transparent; /* Подчеркивание таба */
   font-size: 14px;
   font-weight: 500;
   color: #666;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 0; /* Предотвращает сжатие табов */
 }
 
-.tabButton:hover {
+.tabsTrigger:hover:not(:disabled) {
   color: #0066cc;
 }
 
-.tabButton.active {
+.tabsTrigger.active {
   color: #0066cc;
-  border-bottom-color: #0066cc;
+  border-bottom-color: #0066cc; /* Цвет активного таба */
 }
 
-.tabContent {
+.tabsTrigger:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Контейнер содержимого таба */
+.tabContent { /* Переименован из .tabContent */
   margin-top: 16px;
 }
 
+/* Стили карточек */
 .card {
   background-color: white;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Тень */
   margin-bottom: 24px;
-  overflow: hidden;
+  overflow: hidden; /* Скрываем выступающие части (например, border-radius) */
 }
 
 .cardHeader {
   padding: 16px 20px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #eee; /* Разделитель */
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .cardTitle {
@@ -142,31 +189,36 @@
   padding: 20px;
 }
 
+/* Стили для поиска и фильтра */
 .searchContainer {
   display: flex;
   gap: 16px;
   margin-bottom: 24px;
+  flex-wrap: wrap;
 }
 
-.searchInputContainer {
+.searchInputContainer { /* Контейнер для поискового инпута */
   position: relative;
   flex: 1;
+  min-width: 150px;
 }
 
-.searchIcon {
+.searchIcon { /* Иконка поиска внутри инпута */
   position: absolute;
   left: 10px;
   top: 50%;
   transform: translateY(-50%);
   color: #666;
+  pointer-events: none; /* Не мешает кликам */
 }
 
-.searchInput {
+.searchInput { /* Поле ввода поиска */
   width: 100%;
-  padding: 8px 8px 8px 32px;
+  padding: 8px 8px 8px 32px; /* Отступ для иконки */
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
+  box-sizing: border-box; /* Размеры с учетом padding и border */
 }
 
 .searchInput:focus {
@@ -175,88 +227,393 @@
   box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
 }
 
-.tableContainer {
-  border: 1px solid #eee;
-  border-radius: 4px;
-  overflow: hidden;
+.filterDropdownContainer { /* Контейнер для выпадающего списка фильтра */
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.dataTable {
+/* Стили для выпадающего списка (select) в фильтре/форме */
+.selectTrigger { /* Общий класс для select, если нужен кастомный вид */
+    /* Может потребовать сброса стандартных стилей браузера */
+    -webkit-appearance: none; /* Скрываем стандартную стрелку */
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M287%2C114.7L159.3%2C242.5c-4.5%2C4.5-10.1%2C6.8-15.8%2C6.8s-11.3-2.3-15.8-6.8L5.4%2C114.7C0.6%2C109.9%2C0.6%2C102%2C5.4%2C97.2s12.4-4.8%2C17.2%2C0l126.4%2C126.2c4.5%2C4.5%2C10.1%2C6.8%2C15.8%2C6.8s11.3-2.3%2C15.8-6.8L270%2C97.2c4.8-4.8%2C12.4-4.8%2C17.2%2C0S287%2C109.9%2C287%2C114.7z%22%2F%3E%3C%2Fsvg%3E"); /* Иконка стрелки */
+    background-repeat: no-repeat;
+    background-position: right 8px top 50%;
+    background-size: 12px auto;
+    padding-right: 30px; /* Отступ справа для стрелки */
+}
+
+
+/* Стили таблиц */
+.tableContainer {
+  border: 1px solid #eee; /* Рамка вокруг таблицы */
+  border-radius: 4px;
+  overflow-x: auto; /* Горизонтальная прокрутка */
+}
+
+.dataTable { /* Таблица */
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: collapse; /* Объединение границ ячеек */
   text-align: left;
+  min-width: 600px; /* Минимальная ширина для прокрутки */
 }
 
 .dataTable th,
 .dataTable td {
-  padding: 12px 16px;
+  padding: 12px 16px; /* Внутренние отступы ячеек */
+  vertical-align: middle; /* Вертикальное выравнивание */
 }
 
-.dataTable th {
-  background-color: #f9f9f9;
+.dataTable th { /* Заголовки столбцов */
+  background-color: #f9f9f9; /* Фон */
   font-weight: 600;
   color: #666;
   font-size: 14px;
+  text-transform: uppercase; /* Верхний регистр */
 }
 
-.dataTable tr {
-  border-bottom: 1px solid #eee;
+.dataTable tr { /* Строки таблицы */
+  border-bottom: 1px solid #eee; /* Разделитель строк */
 }
 
 .dataTable tr:last-child {
-  border-bottom: none;
+  border-bottom: none; /* Убираем разделитель у последней строки */
 }
 
-.dataTable tr:hover {
-  background-color: #f5f5f5;
+.dataTable tbody tr:hover {
+  background-color: #f5f5f5; /* Фон при наведении */
 }
 
+/* Стили ячеек с именем (Группа, Студент) */
 .groupName,
 .studentName {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 8px; /* Расстояние между иконкой и текстом */
+  font-weight: 500;
 }
 
-.progressContainer {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.progressBar {
-  flex: 1;
-  height: 8px;
-  background-color: #eee;
-  border-radius: 4px;
-  overflow: hidden;
-  max-width: 100px;
-}
-
-.progressFill {
-  height: 100%;
-  background-color: #0066cc;
-}
-
-.progressText {
-  font-size: 12px;
-  color: #666;
-}
-
+/* Стили для отображения прогресса документов */
 .docsContainer {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 8px; /* Расстояние между прогресс-баром и текстом процента */
 }
 
-.docsCount {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 14px;
+/* Удаленный .docsCount стиль */
+
+.progressBar { /* Контейнер прогресс-бара */
+  flex: 1;
+  height: 8px;
+  background-color: #eee; /* Фон пустой части */
+  border-radius: 4px;
+  overflow: hidden;
+  max-width: 100px; /* Ограничиваем ширину */
 }
 
+.progressFill { /* Заполняющая часть прогресс-бара */
+  height: 100%;
+  background-color: #0066cc; /* Цвет заполнения (синий) */
+  transition: width 0.5s ease-in-out; /* Анимация при изменении ширины */
+}
+
+.progressText { /* Текст процента */
+  font-size: 12px;
+  color: #666;
+  flex-shrink: 0; /* Предотвращает сжатие текста */
+}
+
+/* Контейнер для кнопок действий в ячейке */
 .actionsContainer {
   display: flex;
-  gap: 4px;
+  gap: 8px; /* Расстояние между кнопками */
+  flex-wrap: wrap; /* Перенос кнопок */
+}
+
+
+/* --- Стили модальных окон --- */
+
+/* Overlay (фон за модальным окном) */
+.modalOverlay {
+    position: fixed; /* Фиксированное положение */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7); /* Полупрозрачный черный фон */
+    display: flex;
+    justify-content: center; /* Центрируем по горизонтали */
+    align-items: flex-end;
+    z-index: 1000; /* Поверх всех элементов */
+    animation: fadeInOverlay 0.3s ease-out; /* Анимация появления */
+}
+
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Контент модального окна */
+.modalContent {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Тень */
+    position: relative; /* Для позиционирования кнопки закрытия */
+    max-height: 90%; /* Максимальная высота */
+    /* width и maxWidth задаются инлайн для адаптивности */
+    overflow: hidden; /* Скрываем контент, который выходит за пределы */
+    display: flex; /* Используем flexbox */
+    flex-direction: column; /* Располагаем элементы по вертикали */
+    animation: slideInModal 0.3s ease-out; /* Анимация появления (сверху) */
+}
+
+@keyframes slideInModal {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Заголовок модального окна */
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap; /* Перенос элементов */
+    gap: 10px;
+}
+
+.modalTitle {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+/* Тело модального окна (основная область контента) */
+.modalBody {
+    flex-grow: 1; /* Занимает всё доступное пространство */
+    overflow-y: auto; /* Вертикальная прокрутка, если контент не помещается */
+    /* Стили для контента внутри (список документов, форма, iframe) */
+}
+
+/* Footer модального окна (для кнопок внизу) */
+.modalFooter {
+    display: flex;
+    justify-content: flex-end; /* Кнопки справа */
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+    margin-top: 15px;
+}
+
+/* Кнопка закрытия модального окна */
+.closeButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 20px;
+    color: #666;
+    transition: color 0.2s ease;
+}
+
+.closeButton:hover {
+    color: #333;
+}
+
+.closeButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Стили для списка документов внутри модального окна (для Students Documents Modal) */
+.modalDocumentList { /* Контейнер списка (ul) */
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.modalDocumentItem { /* Элемент списка (li) */
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.modalDocumentItem:last-child {
+    border-bottom: none; /* Убираем разделитель у последнего */
+}
+
+.modalDocumentInfo { /* Блок с названием и датой документа в списке */
+    flex-grow: 1; /* Занимает доступное пространство */
+}
+
+.modalDocumentTitle { /* Название документа в списке */
+    font-weight: bold;
+    font-size: 1em;
+    margin: 0 0 4px 0;
+}
+
+.modalDocumentDate { /* Дата документа в списке */
+    font-size: 0.9em;
+    color: #666;
+}
+
+.modalDocumentActions { /* Блок с кнопками действий для документа в списке (View/Download) */
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+/* Стили для поля поиска-фильтра групп в студентах */
+.filterDropdownContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Стили для чекбокс-группы в формах модальных окон */
+.checkboxGroup {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* Расстояние между чекбоксами */
+    /* border: 1px solid #ccc; */ /* Опциональная рамка */
+    /* padding: 10px; */
+    /* border-radius: 4px; */
+}
+
+.checkboxItem {
+    display: flex;
+    align-items: center;
+    gap: 4px; /* Расстояние между чекбоксом и меткой */
+}
+
+.checkboxItem label {
+    font-size: 0.9em;
+    color: #333;
+}
+
+
+/* Стили для форм внутри модальных окон (Create/Edit) */
+.modalForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Расстояние между группами полей */
+}
+
+.formGroup { /* Группа "метка + поле ввода" */
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.formLabel { /* Метка поля ввода */
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #333;
+}
+
+.inputField, /* Общий стиль для input/select/textarea */
+.textareaField {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.inputField:focus,
+.textareaField:focus,
+.selectTrigger:focus {
+    outline: none;
+    border-color: #0066cc;
+    box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+}
+
+.textareaField {
+    resize: vertical; /* Разрешить только вертикальное изменение размера */
+    min-height: 80px;
+}
+
+.formErrorMessage { /* Стили для сообщения об ошибке валидации */
+    font-size: 0.8em;
+    color: #dc3545; /* Красный */
+    margin-top: 4px;
+}
+
+.formInfoMessage { /* Стили для информационных сообщений в форме */
+    font-size: 0.8em;
+    color: #555;
+    margin-top: 4px;
+}
+
+/* Optional: Add specific styles for the Date input if needed */
+/* .inputField[type="date"] { ... } */
+
+/* Optional: Add specific styles for the Select dropdown */
+/* .selectTrigger { ... } */
+
+
+/* Стили для AlertDialog (для подтверждения удаления) */
+.alertDialogOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Менее темный фон */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1010; /* Выше обычных модальных окон */
+     animation: fadeInOverlay 0.3s ease-out;
+}
+
+.alertDialogContent {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    max-width: 400px; /* Меньше, чем обычное модальное окно */
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+     animation: slideInModal 0.3s ease-out;
+}
+
+.alertDialogHeader {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    /* Может не иметь кнопки закрытия X, если это confirmation */
+}
+
+.alertDialogTitle {
+     font-size: 1.1em;
+     font-weight: bold;
+     margin: 0;
+     color: #dc3545; /* Красный для заголовка удаления */
+}
+
+.alertDialogDescription {
+    font-size: 0.9em;
+    color: #333;
+    margin: 0;
+}
+
+.alertDialogFooter {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px; /* Расстояние между кнопками */
+    padding-top: 15px;
+    /* Может не иметь border-top */
 }

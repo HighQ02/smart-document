@@ -277,3 +277,140 @@
 .buttonGroupHorizontal .button {
     flex: 1;
 }
+
+/* Стиль для выбранных получателей в форме создания */
+.activeRecipient {
+    background-color: #007bff; /* Цвет кнопки при выборе */
+    color: #fff; /* Цвет текста при выборе */
+    border-color: #007bff;
+}
+
+.activeRecipient:hover:not(:disabled) {
+     background-color: #0056b3; /* Темнее при наведении */
+     border-color: #0056b3;
+}
+
+/* Стиль для списка членов группы */
+.groupMembersList {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px dashed #ccc; /* Пунктирная рамка для визуального отделения */
+    border-radius: 5px;
+    background-color: #f8f8f8; /* Светлый фон */
+}
+
+.groupMembersList h4,
+.groupMembersList h5 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1em; /* Чуть меньше заголовков секций */
+    color: #555;
+}
+
+.groupMembersList h4 {
+     font-weight: bold;
+     border-bottom: 1px solid #eee; /* Разделитель для заголовка списка */
+     padding-bottom: 5px;
+}
+
+.groupMembersList h5 {
+    font-weight: normal; /* Нежирный заголовок подкатегории */
+    color: #000;
+}
+
+.groupMembersList ul {
+    list-style: none; /* Убираем стандартные маркеры списка */
+    padding: 0;
+    margin: 0 0 15px 0;
+}
+
+.groupMembersList li {
+    padding: 5px 0;
+    border-bottom: 1px solid #eee; /* Разделитель между элементами списка */
+    font-size: 0.9em;
+    color: #333;
+}
+
+.groupMembersList li:last-child {
+    border-bottom: none; /* Убираем разделитель у последнего элемента */
+}
+
+/* Стиль для дополнительной информации (чей родитель/студент) */
+.relatedInfo {
+    font-size: 0.8em;
+    color: #666;
+    margin-left: 8px;
+    font-style: italic; /* Курсив */
+}
+
+/* Стиль для родительского контейнера списка с чекбоксами */
+.linkedList {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 15px 0;
+}
+
+/* Стиль для отдельных элементов списка, которые можно выбрать */
+.selectableListItem {
+    display: flex; /* Используем flexbox для выравнивания чекбокса и текста */
+    align-items: center; /* Выравнивание по центру вертикали */
+    padding: 8px 12px; /* Внутренние отступы */
+    border: 1px solid #eee; /* Легкая рамка */
+    border-radius: 4px; /* Слегка скругленные углы */
+    margin-bottom: 5px; /* Отступ между элементами */
+    background-color: #fff; /* Белый фон */
+    cursor: pointer; /* Курсор-указатель при наведении */
+    transition: background-color 0.2s ease, border-color 0.2s ease; /* Плавный переход при наведении */
+    font-size: 0.9em;
+}
+
+.selectableListItem:last-child {
+    margin-bottom: 0; /* Убираем отступ у последнего элемента */
+}
+
+.selectableListItem:hover {
+    background-color: #f0f0f0; /* Светло-серый фон при наведении */
+    border-color: #ccc;
+}
+
+/* Стиль для чекбокса внутри элемента списка */
+.selectableListItem input[type="checkbox"] {
+    margin-right: 10px; /* Отступ справа от чекбокса */
+    /* Дополнительные стили для кастомизации чекбокса, если нужно */
+}
+
+/* Стиль для выбранного элемента списка */
+.selectableListItem.selectedListItem {
+    background-color: #e0f0ff; /* Светло-голубой фон для выбранных */
+    border-color: #007bff; /* Голубая рамка для выбранных */
+    font-weight: bold; /* Жирный текст для выбранных */
+    color: #0056b3; /* Темно-синий текст */
+}
+
+.selectableListItem.selectedListItem .relatedInfo {
+    color: #0056b3; /* Цвет связанной информации у выбранных */
+}
+
+
+/* Стиль для дополнительной информации (чей родитель/студент) - остается как есть */
+.relatedInfo {
+    font-size: 0.8em;
+    color: #666;
+    margin-left: 8px;
+    font-style: italic;
+}
+
+/* Стили для заголовков списков членов */
+.groupMembersList h5 {
+     margin-top: 15px; /* Отступ сверху для заголовка подкатегории */
+     margin-bottom: 8px; /* Отступ снизу */
+     padding-bottom: 4px; /* Отступ под линией */
+     border-bottom: 1px dashed #ddd; /* Пунктирный разделитель */
+     font-size: 1em;
+     font-weight: bold; /* Заголовки подкатегорий жирным */
+     color: #333;
+}
+
+.groupMembersList h5:first-child {
+    margin-top: 0; /* Убираем верхний отступ у первого заголовка в блоке */
+}
